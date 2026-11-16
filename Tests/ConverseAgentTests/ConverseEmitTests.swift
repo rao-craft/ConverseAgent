@@ -75,8 +75,8 @@ final class ConverseEmitTests: XCTestCase {
     }
 
     func testTheLaunchFileHasOneCaseALineAndReadsTheDestinationDefault() throws {
-        let folder = try Fixture.folder()
-        let launch = try Fixture.text(try Fixture.seer(into: folder).paths, "ConverseLaunch.swift")
+        let seer = try Fixture.seer(into: try Fixture.folder())
+        let launch = try Fixture.text(seer.paths, "ConverseLaunch.swift")
         XCTAssertTrue(launch.contains(#"switch UserDefaults.standard.string(forKey: "destination") {"#))
         for line in [#"case "seer": return ConverseLaunch(.empty)"#, #"case "void.reply": return ConverseLaunch(.reply(0))"#,
                      #"case "echoes": return ConverseLaunch(.transcript([0]))"#, #"case "contributions": return ConverseLaunch(.sources(0))"#,
@@ -86,6 +86,11 @@ final class ConverseEmitTests: XCTestCase {
                      #"case "threads.full": return ConverseLaunch(.weave([0], nil), large: true)"#] {
             XCTAssertTrue(launch.contains(line), line)
         }
+        // A launch's large weave goes up over the transcript with the large detent alone, set before it is shown: a
+        // sheet over a sheet stood at medium with its selection set to large (`threads.full`, floor r6c).
+        let transcript = try Fixture.text(seer.paths, "ConverseTranscript.swift")
+        XCTAssertTrue(transcript.contains(".presentationDetents(weaveHeld ? [.large] : [.medium, .large], selection: $weaveDetent)"))
+        XCTAssertTrue(transcript.contains("weaveHeld = weaveLarge\n            weaveDetent = weaveLarge ? .large : .medium\n            weaveShown = true"))
         let tutor = try ConverseAgent.write(.init(prefix: "Tutor", launch: ["tutor.weave = weave(0, 2, \"curious\") large"], directory: try Fixture.folder().path),
                                             note: { _ in }, yield: { _ in })
         XCTAssertTrue(try Fixture.text(tutor.paths, "TutorLaunch.swift").contains(#"case "tutor.weave": return TutorLaunch(.weave([0, 2], "curious"), large: true)"#))

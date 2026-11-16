@@ -649,6 +649,14 @@ With no measures there is no legend.
 Each change made to make this agent more precise, dated, with the run that measured it and what it made of what it
 was asked before and after (`TESTING.md`). Newest first.
 
+### 2026-11-15 · the weave at full height
+
+With `large`, the weave over the transcript opens at the large detent as the transcript does: it is shown with that
+detent alone, set before it appears, and keeps it until it is closed. Shown with both detents and its selection set
+to large, a sheet over a sheet stood at medium, so `threads.full`'s rows and legend were below its edge.
+
+Measured: not yet.
+
 ### 2026-11-15 · the weave's legend
 
 `measures` lines draw the legend the original's Thread has under its rows (`indicatorLegend`), with its fonts,
@@ -656,7 +664,8 @@ tracking, colours and spacing as `legend` tuning keys. The Seer call gives the r
 TEXTURE 0.07) and the third, PRESENCE 0.80, below the fold at full height, all three worked from the stub's
 indicators the way the original works them.
 
-Measured: not yet.
+Measured: floor r6c (0c27884) put every converse screen at parity but `threads.full`, whose weave stood at medium
+with its rows and legend below the sheet's edge; the legend is first seen at the next floor.
 
 ### 2026-11-15 · a sheet's height, one exchange, owners with no id
 

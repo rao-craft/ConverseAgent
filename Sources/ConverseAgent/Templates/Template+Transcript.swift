@@ -19,6 +19,9 @@ struct ConverseTranscript<Documents: View>: View {
     @State private var path: [ConverseRoute] = []
     @State private var weaveShown = false
     @State private var weaveDetent: PresentationDetent = .medium
+    /// A launch's weave at the large detent is held there, the large detent its only one until it is closed: a sheet
+    /// over a sheet stands at medium whatever its selection says when it is shown.
+    @State private var weaveHeld = false
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -68,13 +71,14 @@ struct ConverseTranscript<Documents: View>: View {
             }
         }
         .tint(ConverseLook.accent)
-        .sheet(isPresented: $weaveShown) {
+        .sheet(isPresented: $weaveShown, onDismiss: { weaveHeld = false }) {
             ConverseWeave(readings: readings, entered: opensWeave, open: opensWeave ? weaveReading : nil)
-                .presentationDetents([.medium, .large], selection: $weaveDetent)
+                .presentationDetents(weaveHeld ? [.large] : [.medium, .large], selection: $weaveDetent)
         }
         .task {
             guard opensWeave, !readings.isEmpty else { return }
             try? await Task.sleep(for: .seconds({{n:launch.nested}}))
+            weaveHeld = weaveLarge
             weaveDetent = weaveLarge ? .large : .medium
             weaveShown = true
         }
