@@ -1,0 +1,76 @@
+{
+  "$id" : "https://github.com/rao-craft/ConverseAgent/blob/main/Schema/converse.input.schema.json",
+  "$schema" : "https://json-schema.org/draft/2020-12/schema",
+  "description" : "Every field a call to converse may give; `directory` is Craft's, never the model's.",
+  "properties" : {
+    "imports" : {
+      "description" : "modules the conformances import, such as the package a mapped type is declared in",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    },
+    "into" : {
+      "description" : "the folder for the views, relative to the project; Components/Converse when left out",
+      "type" : "string"
+    },
+    "launch" : {
+      "description" : "one line a destination and the state the stage opens in: empty, reply(i), transcript(i, …), sources(i), source(i, \"group\") or weave(i, …); `contribution = source(0, \"Orbital Mechanics\")`",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    },
+    "look" : {
+      "description" : "fonts and colours by role, several to a line: `title = Font.brandTitle, body = Font.brandBody, accent = Color.accent, card = #FFFFFF / #FFFFFF 0.10`; roles: title, body, body2, note, note2, accent, background, card, cardShadow, buttonShadow",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    },
+    "mappings" : {
+      "description" : "one line a role (exchange, highlight, owner, group, document, reading): `exchange: Exchange prompt=prompt reply=reply highlights=highlights owners=owners`; a bare path is read off the value, anything else is Swift that may name `value`",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    },
+    "prefix" : {
+      "description" : "the word the kit's types start with in place of Converse, when the app already has those names: Void writes VoidStage",
+      "type" : "string"
+    },
+    "readings" : {
+      "description" : "one line a word of the weave and the reading it opens: `outward: The weft is running ahead of the warp.`",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    },
+    "strings" : {
+      "description" : "words by key, several to a line: `stage.title = \"Seer\", sources.royalty = \"Royalty: {n}%\"`; a word in quotes keeps its spaces",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    },
+    "symbols" : {
+      "description" : "SF Symbols by key: `leading = infinity, weave = bonjour`",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    },
+    "tuning" : {
+      "description" : "numbers by group or key: `reveal: base 15, jitter 10, wait 1.2`, `stroke.opacity = 0.20`, `palette = (0.38, 0.55, 0.38) (0.56, 0.49, 0.32)`",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    }
+  },
+  "required" : [
+
+  ],
+  "title" : "What converse takes (craft-agent/1)",
+  "type" : "object"
+}

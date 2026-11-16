@@ -1,0 +1,99 @@
+{
+  "$id" : "https://github.com/rao-craft/ConverseAgent/blob/main/Schema/converse.answer.schema.json",
+  "$schema" : "https://json-schema.org/draft/2020-12/schema",
+  "allOf" : [
+    {
+      "$ref" : "https://github.com/riteshpakala/Granite/blob/main/Schema/granite-agent-answer.schema.json"
+    }
+  ],
+  "description" : "A granite-answer/1 answer; what converse makes and expects is one of its own kinds, beside the views, the conformances, each root's initializer, the launch states and the notes.",
+  "properties" : {
+    "conformances" : {
+      "description" : "one line a mapped type: `Exchange: exchange`",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    },
+    "expected" : {
+      "items" : {
+        "properties" : {
+          "kind" : {
+            "enum" : [
+              "view",
+              "conformance"
+            ],
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [
+          "kind",
+          "name"
+        ],
+        "type" : "object"
+      },
+      "type" : "array"
+    },
+    "initializers" : {
+      "description" : "each root view's initializer as one line, with the app's exchange type in it: what the host writes the page body from",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    },
+    "launch" : {
+      "description" : "the launch states, one line a destination: `void.reply = reply(0)`",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    },
+    "made" : {
+      "items" : {
+        "properties" : {
+          "kind" : {
+            "enum" : [
+              "view",
+              "conformance"
+            ],
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        },
+        "required" : [
+          "kind",
+          "name"
+        ],
+        "type" : "object"
+      },
+      "type" : "array"
+    },
+    "notes" : {
+      "description" : "one sentence each: what the call left out or the app still has to do",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    },
+    "path" : {
+      "description" : "the first file written",
+      "type" : [
+        "string",
+        "null"
+      ]
+    },
+    "views" : {
+      "description" : "the views written, by type name, the five roots first",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    }
+  },
+  "title" : "What converse answers (granite-answer/1)"
+}

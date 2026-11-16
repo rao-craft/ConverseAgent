@@ -1,0 +1,33 @@
+{
+  "into": "Views/Tutor",
+  "prefix": "Tutor",
+  "mappings": [
+    "exchange: Turn prompt=question reply=answer highlights=quotes owners=sources",
+    "highlight: Quote phrase=text owner=sourceID",
+    "owner: Source name=title royalty=share documents=pages",
+    "document: Page text=body influence=weight"
+  ],
+  "look": [
+    "accent = Color.indigo, note = Font.system(size: 17, design: .rounded)"
+  ],
+  "strings": [
+    "stage.title = \"Tutor\", stage.placeholder = \"Ask a question\", sources.title = \"Sources\", sources.royalty = \"Share: {n}%\"",
+    "weave.title = \"Your Week\""
+  ],
+  "symbols": [
+    "leading = book, weave = sparkles"
+  ],
+  "tuning": [
+    "reveal: base 10, jitter 5, wait 0.4",
+    "palette = #4F6BED #E58E26 #3BA272"
+  ],
+  "launch": [
+    "tutor = empty",
+    "tutor.answer = reply(0)",
+    "tutor.sources = sources(0)"
+  ],
+  "readings": [
+    "curious: The questions keep reaching past the lesson.",
+    "steady: You come back every evening, a little further each time."
+  ]
+}

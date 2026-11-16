@@ -1,0 +1,56 @@
+{
+  "into": "Components/Converse",
+  "imports": [
+    "SeerKit"
+  ],
+  "mappings": [
+    "exchange: Exchange prompt=prompt reply=reply highlights=highlights owners=owners",
+    "highlight: Highlight phrase=phrase owner=ownerId",
+    "owner: Owner name=name royalty=royalty mine=isAccount tone=tone documents=documents groups=groups",
+    "group: SourceGroup name=name summary=summary tags=tags documents=documents",
+    "document: SourceDocument text=text influence=influence"
+  ],
+  "look": [
+    "title = Font.brandTitle, body = Font.brandBody, body2 = Font.brandBody2, note = Font.brandNote, note2 = Font.brandNote2",
+    "accent = Color.accent, background = Color.background",
+    "card = #FFFFFF / #FFFFFF 0.10, cardShadow = #8E8E8E 0.14 / clear, buttonShadow = #8E8E8E 0.40 / clear"
+  ],
+  "strings": [
+    "stage.title = \"Seer\", stage.placeholder = \" speak into the void...\", stage.echoesLabel = \"Show conversation echoes\"",
+    "echoes.title = \"Echoes\", echoes.copy = \"Copy to clipboard\"",
+    "sources.title = \"Contributions\", sources.library = \"Library\", sources.royalty = \"Royalty: {n}%\", sources.influence = \"Influence: {n}%\", sources.docs = \"{n} docs\", sources.doc = \"1 doc\"",
+    "sources.emptyTitle = \"No Contributions\", sources.emptyText = \"No real contributions influenced or impacted this response.\"",
+    "detail.title = \"Contribution Detail\", weave.title = \"Your Thread\", weave.separator = \"  ·  \""
+  ],
+  "symbols": [
+    "leading = infinity, echoes = line.3.horizontal, close = xmark, keyboard = chevron.down, send = arrow.up",
+    "weave = bonjour, copy = document.on.clipboard, document = text.document.fill, person = person.fill, empty = magnifyingglass"
+  ],
+  "tuning": [
+    "reveal: base 15, jitter 10, wait 1.2, cursor 0.55",
+    "leave: duration 1.0, rise 30, scale 0.96, blur 10, remove 1.1",
+    "arrive: curve 0.16 1 0.3 1, duration 0.9, drop 16, blur 6",
+    "stroke: opacity 0.20, fade 0.7, stagger 0.15, width 12, height 8, rows 7, tilt 0.8",
+    "palette = (0.38, 0.55, 0.38) (0.56, 0.49, 0.32) (0.94, 0.56, 0.68) (0.22, 0.44, 0.65) (0.65, 0.40, 0.55)",
+    "orb: size 500, radius 250, inner rgb(70, 50, 110), opacity 0.045, outer rgb(40, 60, 90), outerOpacity 0.02, drift 30, center 0.45",
+    "stage: top 8, side 24, bottom 24",
+    "column: width 460, gap 18, paragraphs 16, promptSpacing 5, promptKerning 0.2, replySpacing 7, replyKerning 0.3",
+    "pill: radius 24, inset 16, vertical 14, horizontal 16, gap 12, font 19, lines 5, send 14",
+    "echoes: top 12, side 24, bottom 40, block 24, rule 16 1, ruleGap 32",
+    "sources: cut 27, indicator 36",
+    "weave: height 336, speed 0.4, toggle 0.4"
+  ],
+  "launch": [
+    "seer = empty",
+    "void.reply = reply(0)",
+    "echoes = transcript(0, 1, 2)",
+    "contributions = sources(0)",
+    "contribution = source(0, \"Orbital Mechanics\")",
+    "threads = weave(0, 1, 2)"
+  ],
+  "readings": [
+    "outward: The weft is running ahead of the warp. The forward lean has strengthened — the immediate thread has separated from its longer companion, and the arc holds above the midline. The thread is moving toward something it can feel even if it hasn’t named it yet. The loom is holding the lean.",
+    "shifting: The immediate cadence is separating from the settled rhythm. The patterns are diverging — their arcs widening in the canvas, the crossing nodes pulling apart. The texture is in transition: the thread is testing different tensions before deciding which one the pattern actually needs.",
+    "here: A measured depth. The arc holds near the midline — engaged, not consuming. The signal arrives, contributes, and leaves room for what comes next. There’s a rhythm to how this thread moves through the warp: deliberate intervals, consistent reach, nothing strained."
+  ]
+}

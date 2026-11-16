@@ -1,0 +1,262 @@
+{
+  "agent" : {
+    "word" : "converse"
+  },
+  "conformances" : [
+    "Exchange: exchange",
+    "Highlight: highlight",
+    "Owner: owner",
+    "SourceGroup: group",
+    "SourceDocument: document"
+  ],
+  "expected" : [
+    {
+      "kind" : "view",
+      "name" : "ConverseStage"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseTranscript"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseSources"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseSourceDetail"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseWeave"
+    },
+    {
+      "kind" : "conformance",
+      "name" : "Exchange"
+    },
+    {
+      "kind" : "conformance",
+      "name" : "Highlight"
+    },
+    {
+      "kind" : "conformance",
+      "name" : "Owner"
+    },
+    {
+      "kind" : "conformance",
+      "name" : "SourceGroup"
+    },
+    {
+      "kind" : "conformance",
+      "name" : "SourceDocument"
+    }
+  ],
+  "format" : "granite-answer/1",
+  "initializers" : [
+    "ConverseStage(exchanges: [Exchange], readings: [any ConverseReadingRepresentable] = ConverseReadings.all, send: @MainActor (String) async throws -> Void, load: (@MainActor () async throws -> Void)? = nil, leading: (@MainActor () -> Void)? = nil, leadingActive: Bool = false, listen: (@MainActor () -> Void)? = nil, listening: Bool = false, documents: (([String]) -> some View)? = nil)",
+    "ConverseTranscript(exchanges: [ConverseExchange], readings: [ConverseReading], opensWeave: Bool = false)",
+    "ConverseSources(exchange: ConverseExchange?, opening: String? = nil)",
+    "ConverseSourceDetail(documents: [ConverseDocument], close: () -> Void)",
+    "ConverseWeave(readings: [ConverseReading], entered: Bool = false)"
+  ],
+  "launch" : [
+    "seer = empty",
+    "void.reply = reply(0)",
+    "echoes = transcript(0, 1, 2)",
+    "contributions = sources(0)",
+    "contribution = source(0, \"Orbital Mechanics\")",
+    "threads = weave(0, 1, 2)"
+  ],
+  "made" : [
+    {
+      "kind" : "view",
+      "name" : "ConverseCloseButton",
+      "path" : "Components/Converse/ConversePlatform.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseOrb",
+      "path" : "Components/Converse/ConverseOrb.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseIdleDot",
+      "path" : "Components/Converse/ConverseDots.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseGlassEdge",
+      "path" : "Components/Converse/ConverseGlassEdge.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConversePill",
+      "path" : "Components/Converse/ConversePill.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseReplyText",
+      "path" : "Components/Converse/ConverseReplyText.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseBrushedReply",
+      "path" : "Components/Converse/ConverseBrushedReply.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseExchangeView",
+      "path" : "Components/Converse/ConverseExchangeView.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseIndicator",
+      "path" : "Components/Converse/ConverseIndicator.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseSources",
+      "path" : "Components/Converse/ConverseSources.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseSourceDetail",
+      "path" : "Components/Converse/ConverseSourceDetail.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseWeaveCanvas",
+      "path" : "Components/Converse/ConverseWeaveCanvas.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseWeave",
+      "path" : "Components/Converse/ConverseWeave.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseTranscript",
+      "path" : "Components/Converse/ConverseTranscript.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "view",
+      "name" : "ConverseStage",
+      "path" : "Components/Converse/ConverseStage.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "conformance",
+      "name" : "Exchange",
+      "path" : "Components/Converse/Conformances/Exchange+ConverseExchange.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "conformance",
+      "name" : "Highlight",
+      "path" : "Components/Converse/Conformances/Highlight+ConverseHighlight.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "conformance",
+      "name" : "Owner",
+      "path" : "Components/Converse/Conformances/Owner+ConverseOwner.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "conformance",
+      "name" : "SourceGroup",
+      "path" : "Components/Converse/Conformances/SourceGroup+ConverseGroup.swift",
+      "state" : "written"
+    },
+    {
+      "kind" : "conformance",
+      "name" : "SourceDocument",
+      "path" : "Components/Converse/Conformances/SourceDocument+ConverseDocument.swift",
+      "state" : "written"
+    }
+  ],
+  "notes" : [
+    "A page shows the stage as the root of its navigation stack: ConverseStage(exchanges: chat.state.exchanges, send: { try await chat.send(text: $0) }); it opens the transcript, the sources and the weave itself.",
+    "The app's navigation opens the stage's page for seer, void.reply, echoes, contributions, contribution, threads; the stage opens its own sheets and pushes for each, and calls `load` when the list does not hold the exchanges a state names yet."
+  ],
+  "path" : "Components/Converse/ConverseValues.swift",
+  "paths" : [
+    "Components/Converse/ConverseValues.swift",
+    "Components/Converse/ConversePlatform.swift",
+    "Components/Converse/ConverseOrb.swift",
+    "Components/Converse/ConverseDots.swift",
+    "Components/Converse/ConverseGlassEdge.swift",
+    "Components/Converse/ConversePill.swift",
+    "Components/Converse/ConverseReplyText.swift",
+    "Components/Converse/ConverseStroke.swift",
+    "Components/Converse/ConverseFlowLayout.swift",
+    "Components/Converse/ConverseBrushedReply.swift",
+    "Components/Converse/ConverseExchangeView.swift",
+    "Components/Converse/ConverseIndicator.swift",
+    "Components/Converse/ConverseSources.swift",
+    "Components/Converse/ConverseSourceDetail.swift",
+    "Components/Converse/ConverseWeaveCanvas.swift",
+    "Components/Converse/ConverseWeave.swift",
+    "Components/Converse/ConverseTranscript.swift",
+    "Components/Converse/ConverseStage.swift",
+    "Components/Converse/ConverseSamples.swift",
+    "Components/Converse/ConverseLook.swift",
+    "Components/Converse/ConverseLaunch.swift",
+    "Components/Converse/ConverseReadings.swift",
+    "Components/Converse/Conformances/Exchange+ConverseExchange.swift",
+    "Components/Converse/Conformances/Highlight+ConverseHighlight.swift",
+    "Components/Converse/Conformances/Owner+ConverseOwner.swift",
+    "Components/Converse/Conformances/SourceGroup+ConverseGroup.swift",
+    "Components/Converse/Conformances/SourceDocument+ConverseDocument.swift"
+  ],
+  "problems" : [
+
+  ],
+  "views" : [
+    "ConverseStage",
+    "ConverseTranscript",
+    "ConverseSources",
+    "ConverseSourceDetail",
+    "ConverseWeave",
+    "ConverseCloseButton",
+    "ConverseOrb",
+    "ConverseIdleDot",
+    "ConverseThinkingDots",
+    "ConverseStillDots",
+    "ConverseGlassEdge",
+    "ConversePill",
+    "ConverseReplyText",
+    "ConverseBrushedReply",
+    "ConverseBrushedParagraph",
+    "ConverseStrokeMarkView",
+    "ConverseExchangeView",
+    "ConverseIndicator",
+    "ConverseSourcesList",
+    "ConverseDocumentRow",
+    "ConverseOwnerHeader",
+    "ConverseOwnerRow",
+    "ConverseGroupRow",
+    "ConverseChip",
+    "ConverseNoSources",
+    "ConverseDocumentPage",
+    "ConverseWeaveCanvas",
+    "ConverseReadingRow",
+    "ConverseBreathingDot",
+    "ConverseRouteView",
+    "ConverseStageExchange"
+  ]
+}
