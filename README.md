@@ -10,7 +10,7 @@ plain SwiftUI that works in any app, with no Granite dependency in it.
 ## What you can ask
 
 ```
-$converse the conversation screens over SeerKit's Exchange, Highlight, Owner, SourceGroup and SourceDocument
+$converse the conversation screens over SeerKit's Exchange, Highlight, Contributor, SourceGroup and SourceDocument
 $converse a tutor's chat: turns as exchanges, quotes as highlights, sources and their pages, its views prefixed Tutor
 $converse the stage with the app's brand fonts and accent, "speak into the void..." in the input
 $converse open the transcript on launch for echoes, and a source's documents for contribution

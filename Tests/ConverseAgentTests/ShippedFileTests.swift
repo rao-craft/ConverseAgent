@@ -68,6 +68,8 @@ final class ShippedFileTests: XCTestCase {
         for key in SymbolKey.all { XCTAssertTrue(reference.contains("| `\(key.name)` | `\(key.fallback)` | \(cell(key.doc)) |"), "Converse.md draws \(key.name)") }
         for key in TuningKey.all { XCTAssertTrue(reference.contains("| `\(key.name)` | `\(key.fallback)` | "), "Converse.md tunes \(key.name)") }
         for state in LaunchState.Name.allCases { XCTAssertTrue(reference.contains("| `\(state.rawValue)"), "Converse.md opens \(state.rawValue)") }
+        for height in LaunchState.Height.allCases { XCTAssertTrue(reference.contains("`\(height.rawValue)`"), "Converse.md opens at \(height.rawValue)") }
+        for line in try Fixture.example("seer").launch ?? [] { XCTAssertTrue(reference.contains("\n" + line + "\n"), "Converse.md launches \(line)") }
         for line in ConverseAgent.initializers(ConverseAgent.read(try Fixture.example("seer")), prefix: "Converse") {
             XCTAssertTrue(reference.contains("\n" + line + "\n"), "Converse.md gives \(line)")
         }
@@ -85,6 +87,20 @@ final class ShippedFileTests: XCTestCase {
                                   targets: [.target(name: "SeerKit")])
             """, to: folder.appendingPathComponent("Packages/SeerKit/Package.swift"))
         try Fixture.write(ConverseApps.seerKit, to: folder.appendingPathComponent("Packages/SeerKit/Sources/SeerKit/Models.swift"))
+        // SeerKit's types are exactly these, so every mapping line below is checked against them and accepted.
+        let app = AppTypes(root: folder)
+        let types: [String: [String]] = [
+            "Exchange": ["id String", "prompt String", "reply String", "highlights [Highlight]", "owners [Contributor]"],
+            "Highlight": ["phrase String", "ownerId String"],
+            "Contributor": ["ownerId String", "name String", "royalty Int", "isAccount Bool", "tone Int", "documents [SourceDocument]", "groups [SourceGroup]"],
+            "SourceDocument": ["documentId String", "text String", "influence Int"],
+            "SourceGroup": ["name String", "summary String", "tags [String]", "documents [SourceDocument]"],
+        ]
+        XCTAssertEqual(Set(app.types.keys), Set(types.keys).union(["MockExchanges"]))
+        for (name, fields) in types {
+            XCTAssertEqual(app.types[name]?.fields.map { "\($0.name) \($0.type)" }, fields, name)
+            XCTAssertEqual(app.types[name]?.module, "SeerKit", name)
+        }
         let call = try Data(contentsOf: Fixture.package.appendingPathComponent("Schema/examples/seer.json"))
         let answer = try await converse.perform(call, host: AgentHost(directory: folder.path))
         var relative = String(decoding: answer, as: UTF8.self)

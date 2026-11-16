@@ -6,19 +6,19 @@ import Foundation
 enum ConverseApps {
     // MARK: Seer
 
-    /// SeerKit as the app's client package declares it: what the Seer call's mapping lines read.
+    /// SeerKit as the app's client package declares it, as ModelsAgent writes its types: what the Seer call's mapping
+    /// lines read. The owners of one reply are values with no `id`; a group is told apart by its name.
     static let seerKit = #"""
     import Foundation
 
-    /// One prompt and its reply.
     public struct Exchange: Codable, Hashable, Identifiable, Sendable {
         public var id: String
         public var prompt: String
         public var reply: String
         public var highlights: [Highlight]
-        public var owners: [Owner]
+        public var owners: [Contributor]
 
-        public init(id: String, prompt: String, reply: String, highlights: [Highlight] = [], owners: [Owner] = []) {
+        public init(id: String, prompt: String, reply: String, highlights: [Highlight], owners: [Contributor]) {
             self.id = id
             self.prompt = prompt
             self.reply = reply
@@ -27,7 +27,6 @@ enum ConverseApps {
         }
     }
 
-    /// A phrase of a reply and whose it is.
     public struct Highlight: Codable, Hashable, Sendable {
         public var phrase: String
         public var ownerId: String
@@ -38,19 +37,18 @@ enum ConverseApps {
         }
     }
 
-    /// Whose documents shaped a reply.
-    public struct Owner: Codable, Hashable, Identifiable, Sendable {
-        public var id: String
+    /// An owner's part in one reply.
+    public struct Contributor: Codable, Hashable, Sendable {
+        public var ownerId: String
         public var name: String
         public var royalty: Int
         public var isAccount: Bool
-        /// The owner's place in the mock owner list, which sets their colour.
         public var tone: Int
         public var documents: [SourceDocument]
         public var groups: [SourceGroup]
 
-        public init(id: String, name: String, royalty: Int, isAccount: Bool = false, tone: Int, documents: [SourceDocument] = [], groups: [SourceGroup] = []) {
-            self.id = id
+        public init(ownerId: String, name: String, royalty: Int, isAccount: Bool, tone: Int, documents: [SourceDocument], groups: [SourceGroup]) {
+            self.ownerId = ownerId
             self.name = name
             self.royalty = royalty
             self.isAccount = isAccount
@@ -60,33 +58,31 @@ enum ConverseApps {
         }
     }
 
-    /// An owner's documents that belong together: one of their worlds.
-    public struct SourceGroup: Codable, Hashable, Identifiable, Sendable {
-        public var id: String
+    /// A document a reply drew on, and how much.
+    public struct SourceDocument: Codable, Hashable, Sendable {
+        public var documentId: String
+        public var text: String
+        public var influence: Int
+
+        public init(documentId: String, text: String, influence: Int) {
+            self.documentId = documentId
+            self.text = text
+            self.influence = influence
+        }
+    }
+
+    /// A group of an owner's documents a reply drew on.
+    public struct SourceGroup: Codable, Hashable, Sendable {
         public var name: String
         public var summary: String
         public var tags: [String]
         public var documents: [SourceDocument]
 
-        public init(id: String, name: String, summary: String, tags: [String], documents: [SourceDocument]) {
-            self.id = id
+        public init(name: String, summary: String, tags: [String], documents: [SourceDocument]) {
             self.name = name
             self.summary = summary
             self.tags = tags
             self.documents = documents
-        }
-    }
-
-    /// A document behind a reply, and how much it shaped it, a whole percent.
-    public struct SourceDocument: Codable, Hashable, Identifiable, Sendable {
-        public var id: String
-        public var text: String
-        public var influence: Int
-
-        public init(id: String, text: String, influence: Int) {
-            self.id = id
-            self.text = text
-            self.influence = influence
         }
     }
 
@@ -106,21 +102,20 @@ enum ConverseApps {
                     Highlight(phrase: "a transfer window opens only about every twenty-six months", ownerId: "owner-tomas"),
                 ],
                 owners: [
-                    Owner(id: you, name: "Ada Marlow", royalty: 62, isAccount: true, tone: 0, documents: [
-                        SourceDocument(id: "space-001", text: "Mars is the fourth planet from the Sun.", influence: 41),
-                        SourceDocument(id: "space-002", text: "The Perseverance rover landed in Jezero Crater.", influence: 33),
-                        SourceDocument(id: "space-003", text: "SpaceX's Starship is designed to carry crew.", influence: 26),
-                    ]),
-                    Owner(id: "owner-tomas", name: "Tomas Vey", royalty: 38, tone: 1, groups: [
-                        SourceGroup(id: "orbital-mechanics", name: "Orbital Mechanics", summary: "Transfers, windows and delta-v budgets worked by hand.",
-                                    tags: ["space", "physics"], documents: [
-                            SourceDocument(id: "orbital-mechanics-001", text: "Transfers, windows and delta-v budgets worked by hand.", influence: 70),
-                            SourceDocument(id: "orbital-mechanics-002", text: "Document 2 of 8.", influence: 30),
+                    Contributor(ownerId: you, name: "Ada Marlow", royalty: 62, isAccount: true, tone: 0, documents: [
+                        SourceDocument(documentId: "space-001", text: "Mars is the fourth planet from the Sun and the second-smallest planet in the Solar System. It has a thin atmosphere composed mostly of carbon dioxide.", influence: 41),
+                        SourceDocument(documentId: "space-002", text: "The Perseverance rover landed on Mars in February 2021, carrying the Ingenuity helicopter which achieved the first powered flight on another planet.", influence: 33),
+                        SourceDocument(documentId: "space-003", text: "SpaceX's Starship is designed to carry crew and cargo to Earth orbit, the Moon, Mars, and beyond. It is the most powerful rocket ever built.", influence: 26),
+                    ], groups: []),
+                    Contributor(ownerId: "owner-tomas", name: "Tomas Vey", royalty: 38, isAccount: false, tone: 1, documents: [], groups: [
+                        SourceGroup(name: "Orbital Mechanics", summary: "Transfers, windows and delta-v budgets worked by hand.", tags: ["space", "physics"], documents: [
+                            SourceDocument(documentId: "orbital-mechanics-001", text: "Transfers, windows and delta-v budgets worked by hand. Document 1 of 8.", influence: 70),
+                            SourceDocument(documentId: "orbital-mechanics-002", text: "Transfers, windows and delta-v budgets worked by hand. Document 2 of 8.", influence: 30),
                         ]),
                     ]),
                 ]
             ),
-            Exchange(id: "exchange-2", prompt: "What is dharma?", reply: "Dharma is a concept of cosmic order, duty, and righteousness."),
+            Exchange(id: "exchange-2", prompt: "What is dharma?", reply: "Dharma is a concept of cosmic order, duty, and righteousness.", highlights: [], owners: []),
             Exchange(
                 id: "exchange-3",
                 prompt: "Why does sourdough take so long?",
@@ -130,12 +125,12 @@ enum ConverseApps {
                     Highlight(phrase: "time does the rest", ownerId: "owner-mara"),
                 ],
                 owners: [
-                    Owner(id: you, name: "Ada Marlow", royalty: 60, isAccount: true, tone: 0, documents: [
-                        SourceDocument(id: "cook-003", text: "Feed the starter daily for a week.", influence: 100),
-                    ]),
-                    Owner(id: "owner-mara", name: "Mara Ellison", royalty: 40, tone: 4, groups: [
-                        SourceGroup(id: "sourdough-lab", name: "Sourdough Lab", summary: "Starters, flours and slow ferments.", tags: ["baking", "bread"], documents: [
-                            SourceDocument(id: "sourdough-lab-001", text: "Starters, flours and slow ferments.", influence: 100),
+                    Contributor(ownerId: you, name: "Ada Marlow", royalty: 60, isAccount: true, tone: 0, documents: [
+                        SourceDocument(documentId: "cook-003", text: "Feed the starter daily for a week.", influence: 100),
+                    ], groups: []),
+                    Contributor(ownerId: "owner-mara", name: "Mara Ellison", royalty: 40, isAccount: false, tone: 4, documents: [], groups: [
+                        SourceGroup(name: "Sourdough Lab", summary: "Starters, flours and slow ferments.", tags: ["baking", "bread"], documents: [
+                            SourceDocument(documentId: "sourdough-lab-001", text: "Starters, flours and slow ferments.", influence: 100),
                         ]),
                     ]),
                 ]
@@ -149,12 +144,12 @@ enum ConverseApps {
                     Highlight(phrase: "spices, precious metals and ideas", ownerId: "owner-priya"),
                 ],
                 owners: [
-                    Owner(id: you, name: "Ada Marlow", royalty: 54, isAccount: true, tone: 0, documents: [
-                        SourceDocument(id: "hist-004", text: "The Silk Road joined China to the Mediterranean.", influence: 100),
-                    ]),
-                    Owner(id: "owner-priya", name: "Priya Nand", royalty: 46, tone: 2, groups: [
-                        SourceGroup(id: "roman-roads", name: "Roman Roads", summary: "How an empire moved goods, armies and news.", tags: ["history", "trade"], documents: [
-                            SourceDocument(id: "roman-roads-001", text: "How an empire moved goods, armies and news.", influence: 100),
+                    Contributor(ownerId: you, name: "Ada Marlow", royalty: 54, isAccount: true, tone: 0, documents: [
+                        SourceDocument(documentId: "hist-004", text: "The Silk Road joined China to the Mediterranean.", influence: 100),
+                    ], groups: []),
+                    Contributor(ownerId: "owner-priya", name: "Priya Nand", royalty: 46, isAccount: false, tone: 2, documents: [], groups: [
+                        SourceGroup(name: "Roman Roads", summary: "How an empire moved goods, armies and news.", tags: ["history", "trade"], documents: [
+                            SourceDocument(documentId: "roman-roads-001", text: "How an empire moved goods, armies and news.", influence: 100),
                         ]),
                     ]),
                 ]
@@ -168,12 +163,12 @@ enum ConverseApps {
                     Highlight(phrase: "neither makes full sense alone", ownerId: "owner-jun"),
                 ],
                 owners: [
-                    Owner(id: you, name: "Ada Marlow", royalty: 65, isAccount: true, tone: 0, documents: [
-                        SourceDocument(id: "music-003", text: "Counterpoint keeps each line independent.", influence: 100),
-                    ]),
-                    Owner(id: "owner-jun", name: "Jun Okafor", royalty: 35, tone: 3, groups: [
-                        SourceGroup(id: "jazz-voicings", name: "Jazz Voicings", summary: "Chord shapes and inner lines for standards.", tags: ["jazz", "harmony"], documents: [
-                            SourceDocument(id: "jazz-voicings-001", text: "Chord shapes and inner lines for standards.", influence: 100),
+                    Contributor(ownerId: you, name: "Ada Marlow", royalty: 65, isAccount: true, tone: 0, documents: [
+                        SourceDocument(documentId: "music-003", text: "Counterpoint keeps each line independent.", influence: 100),
+                    ], groups: []),
+                    Contributor(ownerId: "owner-jun", name: "Jun Okafor", royalty: 35, isAccount: false, tone: 3, documents: [], groups: [
+                        SourceGroup(name: "Jazz Voicings", summary: "Chord shapes and inner lines for standards.", tags: ["jazz", "harmony"], documents: [
+                            SourceDocument(documentId: "jazz-voicings-001", text: "Chord shapes and inner lines for standards.", influence: 100),
                         ]),
                     ]),
                 ]
@@ -187,9 +182,9 @@ enum ConverseApps {
                     Highlight(phrase: "fails on anything it has not seen", ownerId: you),
                 ],
                 owners: [
-                    Owner(id: you, name: "Ada Marlow", royalty: 100, isAccount: true, tone: 0, documents: [
-                        SourceDocument(id: "ml-004", text: "Overfitting: the model learns the noise.", influence: 100),
-                    ]),
+                    Contributor(ownerId: you, name: "Ada Marlow", royalty: 100, isAccount: true, tone: 0, documents: [
+                        SourceDocument(documentId: "ml-004", text: "Overfitting: the model learns the noise.", influence: 100),
+                    ], groups: []),
                 ]
             ),
         ]
@@ -264,13 +259,14 @@ enum ConverseApps {
         }
     }
 
-    /// The Seer tab's page.
+    /// The Seer tab's page, titled as GraniteAgent's blank page titles it: the stage's own title, inline, shows in the bar.
     struct Seer: View {
         @StateObject private var chat = ChatService()
         @StateObject private var layout = LayoutService()
 
         var body: some View {
             \#(seerPageBody)
+                .navigationTitle("Seer")
         }
     }
 
@@ -296,12 +292,14 @@ enum ConverseApps {
                 ("stage", AnyView(NavigationStack { ConverseStage(exchanges: MockExchanges.all, send: { _ in }) })),
                 ("exchange", AnyView(ConverseExchangeView(prompt: exchanges[0].prompt, exchange: exchanges[0], sentAt: nil))),
                 ("brushed", AnyView(ConverseBrushedReply(exchange: exchanges[5]))),
-                ("transcript", AnyView(ConverseTranscript(exchanges: Array(exchanges.prefix(3)), readings: ConverseReadings.all))),
+                ("transcript", AnyView(ConverseTranscript(exchanges: Array(exchanges.prefix(1)), readings: ConverseReadings.all,
+                                                          opensWeave: true, weaveLarge: true, weaveReading: "outward"))),
                 ("sources", AnyView(ConverseSources(exchange: exchanges[0], opening: "Orbital Mechanics"))),
                 ("sources.list", AnyView(NavigationStack { ConverseSourcesList(exchange: exchanges[0], close: {}) })),
                 ("sources.empty", AnyView(NavigationStack { ConverseSourcesList(exchange: exchanges[1], close: {}) })),
                 ("detail", AnyView(NavigationStack { ConverseSourceDetail(documents: exchanges[0].owners[1].groups[0].documents, close: {}) })),
                 ("weave", AnyView(ConverseWeave(readings: ConverseReadings.all, entered: true))),
+                ("weave.open", AnyView(ConverseWeave(readings: ConverseReadings.all, entered: true, open: "outward"))),
             ]
             return ConverseDraw.each(views)
         }

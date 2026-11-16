@@ -25,7 +25,7 @@ field, line, key and launch state below it. **Changes** is converse's own log.
 | `strings` | no | words by key, several to a line: `stage.title = "Seer", sources.royalty = "Royalty: {n}%"`; a word in quotes keeps its spaces |
 | `symbols` | no | SF Symbols by key: `leading = infinity, weave = bonjour` |
 | `tuning` | no | numbers by group or key: `reveal: base 15, jitter 10, wait 1.2`, `stroke.opacity = 0.20`, `palette = (0.38, 0.55, 0.38) (0.56, 0.49, 0.32)` |
-| `launch` | no | one line a destination and the state the stage opens in: empty, reply(i), transcript(i, …), sources(i), source(i, "group") or weave(i, …); `contribution = source(0, "Orbital Mechanics")` |
+| `launch` | no | one line a destination and the state the stage opens in: empty, reply(i), transcript(i, …), sources(i), source(i, "group") or weave(i, …), a reading's word in quotes opening it (`weave(0, "outward")`), and `large` after a state that opens a sheet for its full height: `contribution = source(0, "Orbital Mechanics")`, `echoes.full = transcript(0) large` |
 | `readings` | no | one line a word of the weave and the reading it opens: `outward: The weft is running ahead of the warp.` |
 
 `directory` is filled by Craft with the project folder. The person's request and the host's model are offered
@@ -85,10 +85,10 @@ other four roots are there for an app that shows one on its own. As the answer g
 
 ```swift
 ConverseStage(exchanges: [Exchange], readings: [any ConverseReadingRepresentable] = ConverseReadings.all, send: @MainActor (String) async throws -> Void, load: (@MainActor () async throws -> Void)? = nil, leading: (@MainActor () -> Void)? = nil, leadingActive: Bool = false, listen: (@MainActor () -> Void)? = nil, listening: Bool = false, documents: (([String]) -> some View)? = nil)
-ConverseTranscript(exchanges: [ConverseExchange], readings: [ConverseReading], opensWeave: Bool = false)
+ConverseTranscript(exchanges: [ConverseExchange], readings: [ConverseReading], opensWeave: Bool = false, weaveLarge: Bool = false, weaveReading: String? = nil)
 ConverseSources(exchange: ConverseExchange?, opening: String? = nil)
 ConverseSourceDetail(documents: [ConverseDocument], close: () -> Void)
-ConverseWeave(readings: [ConverseReading], entered: Bool = false)
+ConverseWeave(readings: [ConverseReading], entered: Bool = false, open: String? = nil)
 ```
 
 - `exchanges`: the conversation, oldest first; the stage shows the last one, and the next one sent arrives as it
@@ -109,6 +109,10 @@ app's sheets, writes:
 ConverseStage(exchanges: chat.state.exchanges, send: { try await chat.send(text: $0) }, load: { try await chat.load() }, leading: { layout.present(.world) })
 ```
 
+The stage fills the stack's bar inline: its title (`stage.title`) in the centre, its buttons at the ends. The page
+keeps that bar shown and sets no title display mode of its own; a `.navigationTitle` it writes (GraniteAgent's blank
+page writes one) shows only as the stage's own title, which takes its place.
+
 The launch states are the stage's: every destination opens the page that shows the stage (Seer's tab), and the
 stage opens the rest.
 
@@ -117,9 +121,9 @@ stage opens the rest.
 ```
 exchange: Exchange prompt=prompt reply=reply highlights=highlights owners=owners
 highlight: Highlight phrase=phrase owner=ownerId
-owner: Owner name=name royalty=royalty mine=isAccount tone=tone documents=documents groups=groups
-group: SourceGroup name=name summary=summary tags=tags documents=documents
-document: SourceDocument text=text influence=influence
+owner: Contributor id=ownerId name=name royalty=royalty mine=isAccount tone=tone documents=documents groups=groups
+group: SourceGroup id=name name=name summary=summary tags=tags documents=documents
+document: SourceDocument id=documentId text=text influence=influence
 reading: Mood word=title text=line
 ```
 
@@ -568,17 +572,22 @@ first, and `pill.lines` is at least 1.
 ```
 seer = empty
 void.reply = reply(0)
-echoes = transcript(0, 1, 2)
+echoes = transcript(0)
 contributions = sources(0)
 contribution = source(0, "Orbital Mechanics")
-threads = weave(0, 1, 2)
+threads = weave(0)
+echoes.full = transcript(0) large
+contributions.full = sources(0) large
+threads.full = weave(0) large
 ```
 
 `launch` maps a `-destination` name to the state the stage opens in, one line a destination. The kit writes
 `ConverseLaunch`, which the stage reads once as it appears (the launch argument `-destination <name>`, through
 `UserDefaults`); a name no line maps opens the stage as it is. An index is an exchange's place in the app's list,
 from 0; the brackets may be left out (`source 0 "Orbital Mechanics"`), and a missing index is 0. A state that names
-an exchange the list does not hold yet calls `load` first.
+an exchange the list does not hold yet calls `load` first. A height after a state that opens a sheet, `medium` or
+`large`, opens its sheets at that detent (`echoes.full = transcript(0) large`); medium when left out. `empty` and
+`reply(i)` open no sheet and take none.
 
 | State | Opens |
 | --- | --- |
@@ -587,7 +596,7 @@ an exchange the list does not hold yet calls `load` first.
 | `transcript(i, …)` | the stage on the last of them, and the transcript sheet over it holding those exchanges |
 | `sources(i)` | the stage on exchange `i`, and its sources sheet over it |
 | `source(i, "group")` | the sources sheet of exchange `i` with that group's documents pushed (by name or id) |
-| `weave(i, …)` | the transcript of those exchanges, then the weave over it (`launch.nested` seconds later) |
+| `weave(i, …)` | the transcript of those exchanges, then the weave over it (`launch.nested` seconds later), its entrance done and its readings closed; a reading's word in quotes after the indices opens that one (`weave(0, "outward")`); with `large`, the transcript and the weave both open at full height |
 
 The app's navigation opens the page that shows the stage for each name; the stage opens its own sheets and pushes.
 
@@ -606,6 +615,16 @@ order, and each one is a row that opens its reading. They land in `ConverseReadi
 
 Each change made to make this agent more precise, dated, with the run that measured it and what it made of what it
 was asked before and after (`TESTING.md`). Newest first.
+
+### 2026-11-15 · a sheet's height, one exchange, owners with no id
+
+A launch state takes a height after it (`echoes.full = transcript(0) large`), so a `.full` destination opens the
+same sheet at the large detent; `weave` takes a reading's word in quotes and opens no reading without one, as the
+original's Thread opens. The Seer call holds one exchange (`echoes = transcript(0)`, `threads = weave(0)`), as the
+reference screens do, and maps SeerKit's per-reply owners, `Contributor`, `SourceGroup` and `SourceDocument`, which
+have no `id` (`id=ownerId`, `id=name`, `id=documentId`). The first note says the page keeps the stage's bar.
+
+Measured: not yet.
 
 ### 2026-11-15 · first cut
 

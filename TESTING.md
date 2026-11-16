@@ -28,7 +28,7 @@ CONVERSE_EXAMPLES=1 swift test --filter ShippedFileTests   # writes the schemas 
   reaches every name the kit declares; every role has its protocol and conversions; a `#Preview` in every file that
   draws, and a label on every icon-only control.
 - **`ConverseEmitTests`:** the files and names the Seer call writes, with no Granite import and no stored global
-  state; the conformance to SeerKit's `Owner`, word for word; the launch file; every `code` item of Seer's scorecard
+  state; the conformance to SeerKit's `Contributor`, word for word; the launch file; every `code` item of Seer's scorecard
   for the four areas; every string the spec quotes for the five screens; the same bytes on a second run; a prefix on
   every file and type, and a folder that keeps the prefix it holds; each path checked against the app's types, in
   their spelling, with a local package imported; the least call over the kit's own values; an empty title and an
@@ -43,7 +43,7 @@ CONVERSE_EXAMPLES=1 swift test --filter ShippedFileTests   # writes the schemas 
 ## Conformance on Seer
 
 The call in `Schema/examples/seer.json` is the one the one-shot Seer prompt carries. Written into a project that
-holds SeerKit's `Exchange`, `Highlight`, `Owner`, `SourceGroup` and `SourceDocument`, it writes 27 files into
+holds SeerKit's `Exchange`, `Highlight`, `Contributor`, `SourceGroup` and `SourceDocument`, it writes 27 files into
 `Components/Converse`, 22 of the kit and 5 conformances, and leaves the app only its page. The page body
 
 ```swift
@@ -51,8 +51,9 @@ ConverseStage(exchanges: chat.state.exchanges, send: { try await chat.send(text:
 ```
 
 builds with it for the iPhone simulator and the Mac in Swift 6 (`ConverseBuildTests`). Every destination
-(`seer`, `void.reply`, `echoes`, `contributions`, `contribution`, `threads`) opens the Seer tab, and the stage opens
-the rest from the launch state.
+(`seer`, `void.reply`, `echoes`, `contributions`, `contribution`, `threads`, and `echoes.full`,
+`contributions.full`, `threads.full` at the large detent) opens the Seer tab, and the stage opens the rest from the
+launch state.
 
 Against Seer's scorecard (areas `void`, `echoes`, `contributions` and `threads`), the output matches every `code`
 item: B-void-6 to 16, B-echoes-5 to 8, B-contributions-6 to 11 and B-threads-5 to 9. Every string the spec quotes for

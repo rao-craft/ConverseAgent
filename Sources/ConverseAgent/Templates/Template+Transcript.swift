@@ -9,8 +9,11 @@ struct ConverseTranscript<Documents: View>: View {
     let exchanges: [ConverseExchange]
     let readings: [ConverseReading]
     let documents: (([String]) -> Documents)?
-    /// A launch opens the weave over it, at its full height, its entrance done.
+    /// A launch opens the weave over it, its entrance done: at the large detent with `weaveLarge`, else the medium,
+    /// and with `weaveReading`'s reading open when it names one.
     var opensWeave = false
+    var weaveLarge = false
+    var weaveReading: String? = nil
 
     @Environment(\.dismiss) private var dismiss
     @State private var path: [ConverseRoute] = []
@@ -66,13 +69,13 @@ struct ConverseTranscript<Documents: View>: View {
         }
         .tint(ConverseLook.accent)
         .sheet(isPresented: $weaveShown) {
-            ConverseWeave(readings: readings, entered: opensWeave)
+            ConverseWeave(readings: readings, entered: opensWeave, open: opensWeave ? weaveReading : nil)
                 .presentationDetents([.medium, .large], selection: $weaveDetent)
         }
         .task {
             guard opensWeave, !readings.isEmpty else { return }
             try? await Task.sleep(for: .seconds({{n:launch.nested}}))
-            weaveDetent = .large
+            weaveDetent = weaveLarge ? .large : .medium
             weaveShown = true
         }
     }
@@ -107,8 +110,8 @@ struct ConverseTranscript<Documents: View>: View {
 }
 
 extension ConverseTranscript where Documents == EmptyView {
-    init(exchanges: [ConverseExchange], readings: [ConverseReading], opensWeave: Bool = false) {
-        self.init(exchanges: exchanges, readings: readings, documents: nil, opensWeave: opensWeave)
+    init(exchanges: [ConverseExchange], readings: [ConverseReading], opensWeave: Bool = false, weaveLarge: Bool = false, weaveReading: String? = nil) {
+        self.init(exchanges: exchanges, readings: readings, documents: nil, opensWeave: opensWeave, weaveLarge: weaveLarge, weaveReading: weaveReading)
     }
 }
 

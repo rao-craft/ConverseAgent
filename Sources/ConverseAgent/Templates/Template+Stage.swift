@@ -59,6 +59,8 @@ struct ConverseStage<Documents: View>: View {
     @State private var draft = ""
     @State private var replying = false
     @State private var sheet: Sheet?
+    /// The transcript's or the sources' height: medium as a tap opens them, large where a launch says.
+    @State private var detent: PresentationDetent = .medium
     @State private var scrolled = false
     @State private var launch: ConverseLaunch?
     @State private var started = false
@@ -141,7 +143,12 @@ struct ConverseStage<Documents: View>: View {
                 ToolbarItem(placement: ConversePlatform.trailing) {
                     Button {
                         ConversePlatform.tap()
-                        sheet = sheet == .transcript ? nil : .transcript
+                        if sheet == .transcript {
+                            sheet = nil
+                        } else {
+                            detent = .medium
+                            sheet = .transcript
+                        }
                     } label: {
                         Image(systemName: sheet == .transcript ? {{y:close}} : {{y:echoes}})
                             .font(.body)
@@ -154,13 +161,14 @@ struct ConverseStage<Documents: View>: View {
         .sheet(item: $sheet, onDismiss: { launch = nil }) { shown in
             switch shown {
             case .transcript:
-                ConverseTranscript(exchanges: conversation, readings: readings, documents: documents, opensWeave: launch?.opensWeave == true)
-                    .presentationDetents([.medium, .large])
+                ConverseTranscript(exchanges: conversation, readings: readings, documents: documents, opensWeave: launch?.opensWeave == true,
+                                   weaveLarge: launch?.large == true, weaveReading: launch?.reading)
+                    .presentationDetents([.medium, .large], selection: $detent)
                     .presentationDragIndicator(.visible)
                     .presentationBackground(.ultraThinMaterial)
             case .sources(let id):
                 ConverseSources(exchange: exchanges.first { $0.id == id }, documents: documents, opening: launch?.group)
-                    .presentationDetents([.medium, .large])
+                    .presentationDetents([.medium, .large], selection: $detent)
                     .presentationDragIndicator(.visible)
                     .presentationBackground(.regularMaterial)
             case .documents(let ids):
@@ -301,6 +309,7 @@ struct ConverseStage<Documents: View>: View {
 
     private func open(_ shown: Sheet) {
         ConversePlatform.tap()
+        detent = .medium
         sheet = shown
     }
 
@@ -319,20 +328,22 @@ struct ConverseStage<Documents: View>: View {
         guard !started else { return }
         started = true
         launch = ConverseLaunch.current
-        if launch == .empty { held = [] }
+        if launch?.state == .empty { held = [] }
         applyLaunch()
         follow()
     }
 
-    /// The exchanges a launch opens on, once the list holds them: the stage holds those, and its sheets open.
+    /// The exchanges a launch opens on, once the list holds them: the stage holds those, and its sheets open at the
+    /// launch's height.
     private func applyLaunch() {
-        guard let launch, launch != .empty, held == nil || held?.isEmpty == true, current?.sentAt == nil else { return }
+        guard let launch, launch.state != .empty, held == nil || held?.isEmpty == true, current?.sentAt == nil else { return }
         let indices = launch.indices
         guard let highest = indices.max(), highest < exchanges.count else { return }
         let ids = indices.map { exchanges[$0].id }
         held = ids
         follow()
-        switch launch {
+        detent = launch.large ? .large : .medium
+        switch launch.state {
         case .transcript, .weave:
             sheet = .transcript
         case .sources, .source:

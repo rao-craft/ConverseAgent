@@ -15,7 +15,7 @@
       "type" : "string"
     },
     "launch" : {
-      "description" : "one line a destination and the state the stage opens in: empty, reply(i), transcript(i, …), sources(i), source(i, \"group\") or weave(i, …); `contribution = source(0, \"Orbital Mechanics\")`",
+      "description" : "one line a destination and the state the stage opens in: empty, reply(i), transcript(i, …), sources(i), source(i, \"group\") or weave(i, …), a reading's word in quotes opening it (`weave(0, \"outward\")`), and `large` after a state that opens a sheet for its full height: `contribution = source(0, \"Orbital Mechanics\")`, `echoes.full = transcript(0) large`",
       "items" : {
         "type" : "string"
       },

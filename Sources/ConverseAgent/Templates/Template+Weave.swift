@@ -3,22 +3,23 @@ extension Template {
 import SwiftUI
 
 /// A reading of the conversation as a sheet of its own: a woven canvas, always moving, over a few words; each word's
-/// row opens its reading, one at a time. It fades in a part at a time; a launch opens it with that done and the first
-/// reading open.
+/// row opens its reading, one at a time. It fades in a part at a time; a launch opens it with that done, and with a
+/// reading open when it names one.
 struct ConverseWeave: View {
     let readings: [ConverseReading]
-    /// A launch opens it with its entrance done and its first reading open.
+    /// A launch opens it with its entrance done.
     var entered = false
 
     @Environment(\.dismiss) private var dismiss
     @State private var appeared: Bool
     @State private var expanded: String?
 
-    init(readings: [ConverseReading], entered: Bool = false) {
+    /// `open`: the word whose reading starts open; none when it names no reading of these.
+    init(readings: [ConverseReading], entered: Bool = false, open: String? = nil) {
         self.readings = readings
         self.entered = entered
         _appeared = State(initialValue: entered)
-        _expanded = State(initialValue: entered ? readings.first?.word : nil)
+        _expanded = State(initialValue: readings.first { $0.word == open }?.word)
     }
 
     var body: some View {
@@ -173,7 +174,7 @@ enum ConverseWeaveInk {
 #Preview {
     Color.clear
         .sheet(isPresented: .constant(true)) {
-            ConverseWeave(readings: ConverseSamples.readings, entered: true)
+            ConverseWeave(readings: ConverseSamples.readings, entered: true, open: ConverseSamples.readings.first?.word)
                 .presentationDetents([.medium, .large])
         }
 }

@@ -136,35 +136,49 @@ final class LineTests: XCTestCase {
     // MARK: Launch and readings
 
     func testALaunchLineNamesADestinationAndAState() throws {
-        let cases: [(String, String, String)] = [
-            ("seer = empty", "seer", ".empty"),
-            ("void.reply = reply(0)", "void.reply", ".reply(0)"),
-            ("void.reply: reply", "void.reply", ".reply(0)"),
-            ("echoes = transcript(0, 1, 2)", "echoes", ".transcript([0, 1, 2])"),
-            ("echoes = transcript 0 1 2", "echoes", ".transcript([0, 1, 2])"),
-            ("contributions = sources(3)", "contributions", ".sources(3)"),
-            ("contribution = source(0, \"Orbital Mechanics\")", "contribution", ".source(0, \"Orbital Mechanics\")"),
-            ("contribution = source \u{201C}Orbital Mechanics\u{201D}", "contribution", ".source(0, \"Orbital Mechanics\")"),
-            ("\"threads\" = weave(0, 1, 2)", "threads", ".weave([0, 1, 2])"),
+        let cases: [(String, String, String, String)] = [
+            ("seer = empty", "seer", "ConverseLaunch(.empty)", "empty"),
+            ("void.reply = reply(0)", "void.reply", "ConverseLaunch(.reply(0))", "reply(0)"),
+            ("void.reply: reply", "void.reply", "ConverseLaunch(.reply(0))", "reply(0)"),
+            ("echoes = transcript(0)", "echoes", "ConverseLaunch(.transcript([0]))", "transcript(0)"),
+            ("echoes = transcript 0 1 2", "echoes", "ConverseLaunch(.transcript([0, 1, 2]))", "transcript(0, 1, 2)"),
+            ("echoes.full = transcript(0) large", "echoes.full", "ConverseLaunch(.transcript([0]), large: true)", "transcript(0) large"),
+            ("echoes.full = transcript 0 LARGE", "echoes.full", "ConverseLaunch(.transcript([0]), large: true)", "transcript(0) large"),
+            ("echoes.half = transcript(0, medium)", "echoes.half", "ConverseLaunch(.transcript([0]))", "transcript(0) medium"),
+            ("contributions = sources(3)", "contributions", "ConverseLaunch(.sources(3))", "sources(3)"),
+            ("contributions.full = sources large", "contributions.full", "ConverseLaunch(.sources(0), large: true)", "sources(0) large"),
+            ("contribution = source(0, \"Orbital Mechanics\")", "contribution", "ConverseLaunch(.source(0, \"Orbital Mechanics\"))", "source(0, \"Orbital Mechanics\")"),
+            ("contribution = source \u{201C}Orbital Mechanics\u{201D} large", "contribution", "ConverseLaunch(.source(0, \"Orbital Mechanics\"), large: true)",
+             "source(0, \"Orbital Mechanics\") large"),
+            ("\"threads\" = weave(0, 1, 2)", "threads", "ConverseLaunch(.weave([0, 1, 2], nil))", "weave(0, 1, 2)"),
+            ("threads.full = weave(0, \"outward\") large", "threads.full", "ConverseLaunch(.weave([0], \"outward\"), large: true)", "weave(0, \"outward\") large"),
         ]
-        for (line, destination, swift) in cases {
+        for (line, destination, swift, written) in cases {
             let read = try LaunchLine.parse(line)
             XCTAssertEqual(read.destination, destination, line)
-            XCTAssertEqual(read.state.swift, swift, line)
+            XCTAssertEqual(read.state.swift(prefix: "Converse"), swift, line)
+            XCTAssertEqual(read.state.line, written, line)
         }
-        XCTAssertEqual(try LaunchLine.parse("contribution = source(0, \"Orbital Mechanics\")").state.line, "source(0, \"Orbital Mechanics\")")
     }
 
     func testALaunchLineThatIsNotUnderstoodSaysTheStates() {
         let cases: [(String, String)] = [
             ("seer", "a launch line is `destination = state`"),
             ("seer view = empty", "is not a destination name"),
-            ("seer = idle", "`idle` is not a state: a destination opens empty, reply(i), transcript(i, …), sources(i), source(i, \"group\") or weave(i, …)"),
+            ("seer = idle", "`idle` is not a state: a destination opens empty, reply(i), transcript(i, …), sources(i), source(i, \"group\") or weave(i, …), a height after it (`transcript(0) large`)"),
             ("seer = empty(0)", "empty opens with no exchange"),
+            ("seer = empty large", "empty opens no sheet, so it takes no height (`large`)"),
+            ("void.reply = reply(0) large", "reply opens no sheet, so it takes no height"),
             ("void.reply = reply(0, 1)", "reply opens one exchange"),
             ("echoes = transcript", "transcript names the exchanges it holds"),
+            ("echoes = transcript large", "transcript names the exchanges it holds"),
+            ("echoes = transcript(0) full", "`full` is not an exchange's index (0 is the first), a name in quotes or a height (medium, large)"),
+            ("echoes = transcript(0) large medium", "it gives two heights"),
+            ("echoes = transcript(0, \"outward\")", "transcript takes indices and nothing in quotes"),
+            ("threads = weave(0, \"\")", "weave opens a reading by its word, in quotes"),
+            ("threads = weave(0, \"outward\", \"here\")", "it names two things in quotes"),
             ("contribution = source(0)", "source names the group it opens, in quotes"),
-            ("contribution = source(0, \"Orbital", "its group's quote is never closed"),
+            ("contribution = source(0, \"Orbital", "its name in quotes is never closed"),
             ("void.reply = reply(-1)", "`-1` is not an exchange's index"),
         ]
         for (line, reason) in cases {
@@ -191,7 +205,7 @@ final class LineTests: XCTestCase {
             prefix: "void", imports: ["Seer Kit"], mappings: ["exchange: Exchange prompt=prompt", "exchange: Exchange reply=reply", "turn: Turn"],
             look: ["headline = Font.brandTitle"], strings: ["stage.heading = \"Seer\""], symbols: ["menu = ellipsis"],
             tuning: ["reveal: speed 3", "stroke.top = 0.10 -0.25", "pill.lines = 0"],
-            launch: ["seer = empty", "seer = reply(0)"], readings: ["here: a", "here: b"], directory: folder.path))
+            launch: ["seer = empty", "seer = reply(0)", "threads = weave(0, \"there\")"], readings: ["here: a", "here: b"], directory: folder.path))
         let expected = [
             "mappings: `turn: Turn`: `turn` is not a role",
             "mappings: `Exchange` is mapped as exchange twice",
@@ -200,6 +214,7 @@ final class LineTests: XCTestCase {
             "symbols: `menu = ellipsis`",
             "look: `headline = Font.brandTitle`",
             "launch: `seer` is given two states",
+            "launch: `threads = weave(0, \"there\")`: `there` is not a reading's word: the readings are here",
             "readings: `here` is given twice",
             "tuning: stroke.top moves a stroke's points between its two numbers, the lower first",
             "tuning: pill.lines is how many lines the field grows to, at least 1",

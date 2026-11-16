@@ -71,7 +71,7 @@ public struct ConverseAgent: GraniteAgentPackage {
         "strings": "words by key, several to a line: `stage.title = \"Seer\", sources.royalty = \"Royalty: {n}%\"`; a word in quotes keeps its spaces",
         "symbols": "SF Symbols by key: `leading = infinity, weave = bonjour`",
         "tuning": "numbers by group or key: `reveal: base 15, jitter 10, wait 1.2`, `stroke.opacity = 0.20`, `palette = (0.38, 0.55, 0.38) (0.56, 0.49, 0.32)`",
-        "launch": "one line a destination and the state the stage opens in: empty, reply(i), transcript(i, …), sources(i), source(i, \"group\") or weave(i, …); `contribution = source(0, \"Orbital Mechanics\")`",
+        "launch": "one line a destination and the state the stage opens in: empty, reply(i), transcript(i, …), sources(i), source(i, \"group\") or weave(i, …), a reading's word in quotes opening it (`weave(0, \"outward\")`), and `large` after a state that opens a sheet for its full height: `contribution = source(0, \"Orbital Mechanics\")`, `echoes.full = transcript(0) large`",
         "readings": "one line a word of the weave and the reading it opens: `outward: The weft is running ahead of the warp.`",
     ]
     public static let guide = """
@@ -99,8 +99,10 @@ public struct ConverseAgent: GraniteAgentPackage {
         keyboard, send, weave, copy, document, person, empty); `tuning` every number (reveal, leave, arrive, stroke, \
         palette, orb, idle, dots, stage, column, ink, pill, edge, echoes, sources, detail, weave groups). `launch` \
         maps a `-destination` name to the state the stage opens in: empty, reply(i), transcript(i, …), sources(i), \
-        source(i, "group"), weave(i, …), an index being an exchange's place in the app's list; the app's navigation \
-        opens the stage's tab for each name. `readings` give the weave's words: `word: reading`. Example, a tutoring \
+        source(i, "group"), weave(i, …) (`weave(0, "outward")` opens that reading), an index being an exchange's \
+        place in the app's list; `large` after a state opens its sheets at full height (`echoes.full = transcript(0) \
+        large`), medium otherwise; the app's navigation opens the stage's tab for each name. `readings` give the \
+        weave's words: `word: reading`. Example, a tutoring \
         app: {"mappings": ["exchange: Turn prompt=question reply=answer highlights=quotes owners=sources", \
         "highlight: Quote phrase=text owner=sourceID", "owner: Source name=title royalty=share documents=pages", \
         "document: Page text=body influence=weight"], "strings": ["stage.title = \\"Tutor\\", sources.title = \
@@ -213,6 +215,12 @@ public struct ConverseAgent: GraniteAgentPackage {
                     read.readings.append(reading)
                 }
             } catch { refuse("readings", error) }
+        }
+        let words = read.readings.map(\.word)
+        for launch in read.launches where launch.state.name == .weave && !words.isEmpty {
+            if let word = launch.state.quoted, !words.contains(word) {
+                read.problems.append("launch: `\(launch.destination) = \(launch.state.line)`: `\(word)` is not a reading's word: the readings are \(words.joined(separator: ", "))")
+            }
         }
 
         // Numbers that are ranges, where a reversed one would stop the app when it draws.
@@ -369,10 +377,10 @@ public struct ConverseAgent: GraniteAgentPackage {
         let exchange = call.mappings.first { $0.role == .exchange }?.type ?? "\(prefix)Exchange"
         return [
             "\(prefix)Stage(exchanges: [\(exchange)], readings: [any \(prefix)ReadingRepresentable] = \(prefix)Readings.all, send: @MainActor (String) async throws -> Void, load: (@MainActor () async throws -> Void)? = nil, leading: (@MainActor () -> Void)? = nil, leadingActive: Bool = false, listen: (@MainActor () -> Void)? = nil, listening: Bool = false, documents: (([String]) -> some View)? = nil)",
-            "\(prefix)Transcript(exchanges: [\(prefix)Exchange], readings: [\(prefix)Reading], opensWeave: Bool = false)",
+            "\(prefix)Transcript(exchanges: [\(prefix)Exchange], readings: [\(prefix)Reading], opensWeave: Bool = false, weaveLarge: Bool = false, weaveReading: String? = nil)",
             "\(prefix)Sources(exchange: \(prefix)Exchange?, opening: String? = nil)",
             "\(prefix)SourceDetail(documents: [\(prefix)Document], close: () -> Void)",
-            "\(prefix)Weave(readings: [\(prefix)Reading], entered: Bool = false)",
+            "\(prefix)Weave(readings: [\(prefix)Reading], entered: Bool = false, open: String? = nil)",
         ]
     }
 
@@ -380,7 +388,7 @@ public struct ConverseAgent: GraniteAgentPackage {
     static func notes(_ call: Read, prefix: String, title: String) -> [String] {
         var notes: [String] = []
         let exchange = call.mappings.first { $0.role == .exchange }
-        notes.append("A page shows the stage as the root of its navigation stack: \(prefix)Stage(exchanges: \(exchange == nil ? "exchanges" : "chat.state.exchanges"), send: { try await chat.send(text: $0) }); it opens the transcript, the sources and the weave itself.")
+        notes.append("A page shows the stage as the root of its navigation stack: \(prefix)Stage(exchanges: \(exchange == nil ? "exchanges" : "chat.state.exchanges"), send: { try await chat.send(text: $0) }); it opens the transcript, the sources and the weave itself, and puts its buttons\(title.isEmpty ? "" : " and its title, inline,") in the stack's bar: the page keeps that bar shown and sets no title display mode of its own.")
         if exchange == nil {
             notes.append("No line maps an exchange: pass [\(prefix)Exchange] values, or add `exchange: Type prompt=… reply=… highlights=… owners=…`.")
         }

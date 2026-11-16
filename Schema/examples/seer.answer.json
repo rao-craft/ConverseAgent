@@ -5,7 +5,7 @@
   "conformances" : [
     "Exchange: exchange",
     "Highlight: highlight",
-    "Owner: owner",
+    "Contributor: owner",
     "SourceGroup: group",
     "SourceDocument: document"
   ],
@@ -40,7 +40,7 @@
     },
     {
       "kind" : "conformance",
-      "name" : "Owner"
+      "name" : "Contributor"
     },
     {
       "kind" : "conformance",
@@ -54,18 +54,21 @@
   "format" : "granite-answer/1",
   "initializers" : [
     "ConverseStage(exchanges: [Exchange], readings: [any ConverseReadingRepresentable] = ConverseReadings.all, send: @MainActor (String) async throws -> Void, load: (@MainActor () async throws -> Void)? = nil, leading: (@MainActor () -> Void)? = nil, leadingActive: Bool = false, listen: (@MainActor () -> Void)? = nil, listening: Bool = false, documents: (([String]) -> some View)? = nil)",
-    "ConverseTranscript(exchanges: [ConverseExchange], readings: [ConverseReading], opensWeave: Bool = false)",
+    "ConverseTranscript(exchanges: [ConverseExchange], readings: [ConverseReading], opensWeave: Bool = false, weaveLarge: Bool = false, weaveReading: String? = nil)",
     "ConverseSources(exchange: ConverseExchange?, opening: String? = nil)",
     "ConverseSourceDetail(documents: [ConverseDocument], close: () -> Void)",
-    "ConverseWeave(readings: [ConverseReading], entered: Bool = false)"
+    "ConverseWeave(readings: [ConverseReading], entered: Bool = false, open: String? = nil)"
   ],
   "launch" : [
     "seer = empty",
     "void.reply = reply(0)",
-    "echoes = transcript(0, 1, 2)",
+    "echoes = transcript(0)",
     "contributions = sources(0)",
     "contribution = source(0, \"Orbital Mechanics\")",
-    "threads = weave(0, 1, 2)"
+    "threads = weave(0)",
+    "echoes.full = transcript(0) large",
+    "contributions.full = sources(0) large",
+    "threads.full = weave(0) large"
   ],
   "made" : [
     {
@@ -172,8 +175,8 @@
     },
     {
       "kind" : "conformance",
-      "name" : "Owner",
-      "path" : "Components/Converse/Conformances/Owner+ConverseOwner.swift",
+      "name" : "Contributor",
+      "path" : "Components/Converse/Conformances/Contributor+ConverseOwner.swift",
       "state" : "written"
     },
     {
@@ -190,8 +193,8 @@
     }
   ],
   "notes" : [
-    "A page shows the stage as the root of its navigation stack: ConverseStage(exchanges: chat.state.exchanges, send: { try await chat.send(text: $0) }); it opens the transcript, the sources and the weave itself.",
-    "The app's navigation opens the stage's page for seer, void.reply, echoes, contributions, contribution, threads; the stage opens its own sheets and pushes for each, and calls `load` when the list does not hold the exchanges a state names yet."
+    "A page shows the stage as the root of its navigation stack: ConverseStage(exchanges: chat.state.exchanges, send: { try await chat.send(text: $0) }); it opens the transcript, the sources and the weave itself, and puts its buttons and its title, inline, in the stack's bar: the page keeps that bar shown and sets no title display mode of its own.",
+    "The app's navigation opens the stage's page for seer, void.reply, echoes, contributions, contribution, threads, echoes.full, contributions.full, threads.full; the stage opens its own sheets and pushes for each, and calls `load` when the list does not hold the exchanges a state names yet."
   ],
   "path" : "Components/Converse/ConverseValues.swift",
   "paths" : [
@@ -219,7 +222,7 @@
     "Components/Converse/ConverseReadings.swift",
     "Components/Converse/Conformances/Exchange+ConverseExchange.swift",
     "Components/Converse/Conformances/Highlight+ConverseHighlight.swift",
-    "Components/Converse/Conformances/Owner+ConverseOwner.swift",
+    "Components/Converse/Conformances/Contributor+ConverseOwner.swift",
     "Components/Converse/Conformances/SourceGroup+ConverseGroup.swift",
     "Components/Converse/Conformances/SourceDocument+ConverseDocument.swift"
   ],

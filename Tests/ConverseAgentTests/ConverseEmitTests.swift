@@ -19,14 +19,15 @@ final class ConverseEmitTests: XCTestCase {
             "ConverseWeaveCanvas.swift", "ConverseWeave.swift", "ConverseTranscript.swift", "ConverseStage.swift", "ConverseSamples.swift",
             "ConverseLook.swift", "ConverseLaunch.swift", "ConverseReadings.swift",
             "Conformances/Exchange+ConverseExchange.swift", "Conformances/Highlight+ConverseHighlight.swift",
-            "Conformances/Owner+ConverseOwner.swift", "Conformances/SourceGroup+ConverseGroup.swift",
+            "Conformances/Contributor+ConverseOwner.swift", "Conformances/SourceGroup+ConverseGroup.swift",
             "Conformances/SourceDocument+ConverseDocument.swift",
         ])
         XCTAssertEqual(result.expected.map(\.name), ["ConverseStage", "ConverseTranscript", "ConverseSources", "ConverseSourceDetail", "ConverseWeave",
-                                                     "Exchange", "Highlight", "Owner", "SourceGroup", "SourceDocument"])
+                                                     "Exchange", "Highlight", "Contributor", "SourceGroup", "SourceDocument"])
         XCTAssertEqual(result.initializers.count, 5)
         XCTAssertTrue(result.notes.contains { $0.hasPrefix("A page shows the stage as the root of its navigation stack") })
-        XCTAssertTrue(result.notes.contains { $0.contains("seer, void.reply, echoes, contributions, contribution, threads") })
+        XCTAssertTrue(result.notes.contains { $0.contains("seer, void.reply, echoes, contributions, contribution, threads, echoes.full, contributions.full, threads.full") })
+        XCTAssertTrue(result.notes[0].hasSuffix("puts its buttons and its title, inline, in the stack's bar: the page keeps that bar shown and sets no title display mode of its own."), result.notes[0])
         XCTAssertFalse(result.notes.contains { $0.hasPrefix("The look uses the system's") }, "the Seer call maps every role")
         // Plain SwiftUI: no Granite, and no state outside a view (a `static var` is computed, a `static let` constant).
         let all = try Fixture.all(result.paths)
@@ -45,16 +46,16 @@ final class ConverseEmitTests: XCTestCase {
     func testAConformanceReadsEachMappedWordThroughItsConversion() throws {
         let folder = try Fixture.folder()
         let result = try Fixture.seer(into: folder)
-        XCTAssertEqual(try Fixture.text(result.paths, "Owner+ConverseOwner.swift"), """
+        XCTAssertEqual(try Fixture.text(result.paths, "Contributor+ConverseOwner.swift"), """
         import Foundation
         import SeerKit
 
-        /// `owner: Owner name=name royalty=royalty mine=isAccount tone=tone documents=documents groups=groups`
-        extension Owner: ConverseOwnerRepresentable {
+        /// `owner: Contributor id=ownerId name=name royalty=royalty mine=isAccount tone=tone documents=documents groups=groups`
+        extension Contributor: ConverseOwnerRepresentable {
             var converseOwner: ConverseOwner {
                 let value = self
                 return ConverseOwner(
-                    id: ConverseValue.text(value.id),
+                    id: ConverseValue.text(value.ownerId),
                     name: ConverseValue.text(value.name),
                     royalty: ConverseValue.percent(value.royalty),
                     mine: ConverseValue.flag(value.isAccount),
@@ -69,17 +70,25 @@ final class ConverseEmitTests: XCTestCase {
         let highlight = try Fixture.text(result.paths, "Highlight+ConverseHighlight.swift")
         XCTAssertTrue(highlight.contains("owner: ConverseValue.text(value.ownerId)"))
         XCTAssertFalse(highlight.contains("id:"), "a highlight has no id")
+        XCTAssertTrue(try Fixture.text(result.paths, "SourceGroup+ConverseGroup.swift").contains("id: ConverseValue.text(value.name),"), "a group is told apart by its name")
+        XCTAssertTrue(try Fixture.text(result.paths, "SourceDocument+ConverseDocument.swift").contains("id: ConverseValue.text(value.documentId),"))
     }
 
     func testTheLaunchFileHasOneCaseALineAndReadsTheDestinationDefault() throws {
         let folder = try Fixture.folder()
         let launch = try Fixture.text(try Fixture.seer(into: folder).paths, "ConverseLaunch.swift")
         XCTAssertTrue(launch.contains(#"switch UserDefaults.standard.string(forKey: "destination") {"#))
-        for line in [#"case "seer": return .empty"#, #"case "void.reply": return .reply(0)"#, #"case "echoes": return .transcript([0, 1, 2])"#,
-                     #"case "contributions": return .sources(0)"#, #"case "contribution": return .source(0, "Orbital Mechanics")"#,
-                     #"case "threads": return .weave([0, 1, 2])"#] {
+        for line in [#"case "seer": return ConverseLaunch(.empty)"#, #"case "void.reply": return ConverseLaunch(.reply(0))"#,
+                     #"case "echoes": return ConverseLaunch(.transcript([0]))"#, #"case "contributions": return ConverseLaunch(.sources(0))"#,
+                     #"case "contribution": return ConverseLaunch(.source(0, "Orbital Mechanics"))"#, #"case "threads": return ConverseLaunch(.weave([0], nil))"#,
+                     #"case "echoes.full": return ConverseLaunch(.transcript([0]), large: true)"#,
+                     #"case "contributions.full": return ConverseLaunch(.sources(0), large: true)"#,
+                     #"case "threads.full": return ConverseLaunch(.weave([0], nil), large: true)"#] {
             XCTAssertTrue(launch.contains(line), line)
         }
+        let tutor = try ConverseAgent.write(.init(prefix: "Tutor", launch: ["tutor.weave = weave(0, 2, \"curious\") large"], directory: try Fixture.folder().path),
+                                            note: { _ in }, yield: { _ in })
+        XCTAssertTrue(try Fixture.text(tutor.paths, "TutorLaunch.swift").contains(#"case "tutor.weave": return TutorLaunch(.weave([0, 2], "curious"), large: true)"#))
         let none = try ConverseAgent.write(.init(directory: try Fixture.folder().path), note: { _ in }, yield: { _ in })
         let empty = try Fixture.text(none.paths, "ConverseLaunch.swift")
         XCTAssertFalse(empty.contains("case \""), "no destination, no case")

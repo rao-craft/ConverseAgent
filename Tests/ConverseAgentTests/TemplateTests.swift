@@ -21,6 +21,17 @@ final class TemplateTests: XCTestCase {
                 XCTAssertFalse(filled.contains("{{"), "\(part.name) keeps a placeholder")
             }
         }
+        // The stage fills the host's bar, inline, and never hides it or makes its title large: the stage's own title
+        // takes the place of any `.navigationTitle` the page writes.
+        let titled = try TemplateRender.render(Template.stage, flags: ["title"])
+        let untitled = try TemplateRender.render(Template.stage, flags: [])
+        XCTAssertTrue(titled.contains("ConverseBarTitle(text: {{s:stage.title}})"))
+        XCTAssertFalse(untitled.contains("ConverseBarTitle("))
+        for rendered in [titled, untitled] { XCTAssertTrue(rendered.contains(".modifier(ConverseInlineTitle())")) }
+        let all = KitCatalog.parts.map(\.template).joined(separator: "\n")
+        for hiding in [".toolbar(.hidden", "navigationBarHidden", "toolbarVisibility(.hidden", "TitleDisplayMode(.large", "TitleDisplayMode(.automatic"] {
+            XCTAssertFalse(all.contains(hiding), hiding)
+        }
     }
 
     func testEveryKeyIsReadByATemplateAndEveryPlaceholderNamesAKey() {

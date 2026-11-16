@@ -38,7 +38,8 @@ final class ConverseAgentTests: XCTestCase {
         let guide = AnyAgentPackage(ConverseAgent.self).guide
         for word in ["mappings", "exchange (", "highlight (", "owner (", "group (", "document (", "reading (", "value", "id=", "imports",
                      "look", "strings", "symbols", "tuning", "launch", "readings", "ConverseStage(exchanges:", "send", "load", "leading",
-                     "listen", "documents", "empty", "reply(i)", "transcript(i, …)", "sources(i)", "source(i, \"group\")", "weave(i, …)"] {
+                     "listen", "documents", "empty", "reply(i)", "transcript(i, …)", "sources(i)", "source(i, \"group\")", "weave(i, …)",
+                     "weave(0, \"outward\")", "echoes.full = transcript(0) large"] {
             XCTAssertTrue(guide.contains(word), "the guide says \(word)")
         }
         // Every word a role maps is in the guide, so the model never has to guess one.
@@ -67,13 +68,14 @@ final class ConverseAgentTests: XCTestCase {
         let names = Set(result.paths.map { URL(fileURLWithPath: $0).lastPathComponent })
         for name in ["ConverseStage.swift", "ConverseTranscript.swift", "ConverseSources.swift", "ConverseSourceDetail.swift",
                      "ConverseWeave.swift", "ConverseLook.swift", "ConverseLaunch.swift", "ConverseReadings.swift", "ConverseValues.swift",
-                     "Exchange+ConverseExchange.swift", "Highlight+ConverseHighlight.swift", "Owner+ConverseOwner.swift",
+                     "Exchange+ConverseExchange.swift", "Highlight+ConverseHighlight.swift", "Contributor+ConverseOwner.swift",
                      "SourceGroup+ConverseGroup.swift", "SourceDocument+ConverseDocument.swift"] {
             XCTAssertTrue(names.contains(name), name)
         }
-        XCTAssertEqual(result.conformances, ["Exchange: exchange", "Highlight: highlight", "Owner: owner", "SourceGroup: group", "SourceDocument: document"])
-        XCTAssertEqual(result.launch, ["seer = empty", "void.reply = reply(0)", "echoes = transcript(0, 1, 2)", "contributions = sources(0)",
-                                       "contribution = source(0, \"Orbital Mechanics\")", "threads = weave(0, 1, 2)"])
+        XCTAssertEqual(result.conformances, ["Exchange: exchange", "Highlight: highlight", "Contributor: owner", "SourceGroup: group", "SourceDocument: document"])
+        XCTAssertEqual(result.launch, ["seer = empty", "void.reply = reply(0)", "echoes = transcript(0)", "contributions = sources(0)",
+                                       "contribution = source(0, \"Orbital Mechanics\")", "threads = weave(0)", "echoes.full = transcript(0) large",
+                                       "contributions.full = sources(0) large", "threads.full = weave(0) large"])
         XCTAssertEqual(result.views.prefix(5), ["ConverseStage", "ConverseTranscript", "ConverseSources", "ConverseSourceDetail", "ConverseWeave"])
         XCTAssertTrue(result.initializers[0].hasPrefix("ConverseStage(exchanges: [Exchange], "), result.initializers[0])
         let made = Set(result.made.map(\.name))
