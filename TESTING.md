@@ -18,11 +18,13 @@ CONVERSE_EXAMPLES=1 swift test --filter ShippedFileTests   # writes the schemas 
 - **`ShippedFileTests`:** `Schema/converse.input.schema.json` is the record's fields as the model sees them; the
   answer schema names the kinds it makes and its own keys; `Schema/Converse.md` lists every field, role word, look
   role, string, symbol, tuning key and launch state with its default, and gives the initializers and the page body;
-  `Schema/examples/seer.answer.json` is what the Seer call answers over an app whose types live in SeerKit.
+  `Schema/examples/seer.answer.json` is what the Seer call answers over an app whose types live in SeerKit, those
+  types checked field by field first.
 - **`LineTests`:** every kind of line, accepted in each form a model writes and refused with its reason: mappings,
   tuning (a group, a key, a colour, a palette), strings (quotes kept, `{n}` where a number goes), symbols, look,
-  launch states and readings word for word; a call with twelve problems across nine fields refused with all twelve
-  at once; the same key in two lines refused.
+  launch states (with a height, and a reading's word checked against the readings), readings and the legend's
+  measures word for word; a call with fifteen problems across ten fields refused with all fifteen at once; the same
+  key in two lines refused.
 - **`TemplateTests`:** every template renders with and without a title and fills from the defaults; every key is
   read by a template and every placeholder names a key; the views each file declares are the catalog's; the prefix
   reaches every name the kit declares; every role has its protocol and conversions; a `#Preview` in every file that

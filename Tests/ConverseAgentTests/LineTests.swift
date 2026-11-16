@@ -187,6 +187,26 @@ final class LineTests: XCTestCase {
         }
     }
 
+    func testAMeasureIsAQualityItsIndicatorsAndItsValueAsWritten() throws {
+        let cases: [(String, String, String, String)] = [
+            ("DIRECTION = lean · momentum, +0.62", "DIRECTION", "lean · momentum", "+0.62"),
+            ("TEXTURE: \"cadence · drift\", \"0.07\"", "TEXTURE", "cadence · drift", "0.07"),
+            ("\u{201C}PRESENCE\u{201D} = \u{201C}warmth, depth\u{201D} 0.80", "PRESENCE", "warmth, depth", "0.80"),
+            ("Pace = cadence, drift, 0.12", "Pace", "cadence, drift", "0.12"),
+            ("DEPTH = reach", "DEPTH", "reach", ""),
+        ]
+        for (line, quality, indicator, value) in cases {
+            let read = try MeasureLine.parse(line)
+            XCTAssertEqual(read.quality, quality, line)
+            XCTAssertEqual(read.indicator, indicator, line)
+            XCTAssertEqual(read.value, value, line)
+        }
+        XCTAssertTrue(refusal { try MeasureLine.parse("DIRECTION lean · momentum +0.62") }.contains("a measure is `QUALITY = indicators, value`"))
+        XCTAssertTrue(refusal { try MeasureLine.parse("= lean, 0.6") }.contains("it names no quality"))
+        XCTAssertTrue(refusal { try MeasureLine.parse("DIRECTION = , +0.62") }.contains("`DIRECTION` names no indicators"))
+        XCTAssertTrue(refusal { try MeasureLine.parse("DIRECTION = \"lean, 0.6") }.contains("its quote is never closed"))
+    }
+
     func testAReadingIsAWordAndItsReadingWordForWord() throws {
         let read = try ReadingLine.parse("outward: The weft is running ahead of the warp. The arc: above the midline.")
         XCTAssertEqual(read.word, "outward")
@@ -205,7 +225,8 @@ final class LineTests: XCTestCase {
             prefix: "void", imports: ["Seer Kit"], mappings: ["exchange: Exchange prompt=prompt", "exchange: Exchange reply=reply", "turn: Turn"],
             look: ["headline = Font.brandTitle"], strings: ["stage.heading = \"Seer\""], symbols: ["menu = ellipsis"],
             tuning: ["reveal: speed 3", "stroke.top = 0.10 -0.25", "pill.lines = 0"],
-            launch: ["seer = empty", "seer = reply(0)", "threads = weave(0, \"there\")"], readings: ["here: a", "here: b"], directory: folder.path))
+            launch: ["seer = empty", "seer = reply(0)", "threads = weave(0, \"there\")"], readings: ["here: a", "here: b"],
+            measures: ["DIRECTION = lean, 0.6", "DIRECTION = drift, 0.1", "TEXTURE"], directory: folder.path))
         let expected = [
             "mappings: `turn: Turn`: `turn` is not a role",
             "mappings: `Exchange` is mapped as exchange twice",
@@ -216,6 +237,8 @@ final class LineTests: XCTestCase {
             "launch: `seer` is given two states",
             "launch: `threads = weave(0, \"there\")`: `there` is not a reading's word: the readings are here",
             "readings: `here` is given twice",
+            "measures: `DIRECTION` is given twice",
+            "measures: `TEXTURE`: a measure is `QUALITY = indicators, value`",
             "tuning: stroke.top moves a stroke's points between its two numbers, the lower first",
             "tuning: pill.lines is how many lines the field grows to, at least 1",
             "prefix: `void` is not a word type names can start with",

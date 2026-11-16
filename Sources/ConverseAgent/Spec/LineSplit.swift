@@ -27,7 +27,14 @@ enum LineSplit {
     }
 
     /// The index of the first `character` at the top level, if any.
-    static func firstTop(_ text: String, _ character: Character) -> String.Index? {
+    static func firstTop(_ text: String, _ character: Character) -> String.Index? { tops(text, character).first }
+
+    /// The index of the last `character` at the top level, if any.
+    static func lastTop(_ text: String, _ character: Character) -> String.Index? { tops(text, character).last }
+
+    /// The index of every `character` at the top level, in order.
+    static func tops(_ text: String, _ character: Character) -> [String.Index] {
+        var found: [String.Index] = []
         var depth = 0, quoted = false, escaped = false
         var index = text.startIndex
         while index < text.endIndex {
@@ -41,10 +48,10 @@ enum LineSplit {
             } else if "])}>".contains(c) {
                 depth = max(0, depth - 1)
             } else if c == character && depth == 0 {
-                return index
+                found.append(index)
             }
             index = text.index(after: index)
         }
-        return nil
+        return found
     }
 }

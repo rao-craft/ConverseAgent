@@ -41,6 +41,12 @@ enum ConverseSamples {
         ConverseReading(word: "seasonal", text: "Each answer reaches a little further into the year, from this spring toward the next."),
         ConverseReading(word: "patient", text: "Nothing here is hurried. The thread waits for the garden as much as the garden waits for it."),
     ]
+
+    static let measures: [ConverseMeasure] = [
+        ConverseMeasure(quality: "DIRECTION", indicator: "lean · momentum", value: "+0.31"),
+        ConverseMeasure(quality: "TEXTURE", indicator: "cadence · drift", value: "0.12"),
+        ConverseMeasure(quality: "PRESENCE", indicator: "warmth · depth", value: "0.54"),
+    ]
 }
 """#
 }

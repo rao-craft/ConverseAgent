@@ -141,8 +141,18 @@ final class ConverseEmitTests: XCTestCase {
         for quoted in ["\"Seer\"", "\" speak into the void...\"", "\"Show conversation echoes\"", "\"Echoes\"", "\"Copy to clipboard\"",
                        "\"Contributions\"", "\"Library\"", "\"Royalty: \\(", "\"Influence: \\(", " docs\"", "\"1 doc\"", "\"No Contributions\"",
                        "\"No real contributions influenced or impacted this response.\"", "\"Contribution Detail\"", "\"Your Thread\"",
-                       "\"  \u{00B7}  \"", "\"outward\"", "\"shifting\"", "\"here\"", "The loom is holding the lean.\"", "nothing strained.\""] {
+                       "\"  \u{00B7}  \"", "\"outward\"", "\"shifting\"", "\"here\"", "The loom is holding the lean.\"", "nothing strained.\"",
+                       "quality: \"DIRECTION\", indicator: \"lean · momentum\", value: \"+0.62\"",
+                       "quality: \"TEXTURE\", indicator: \"cadence · drift\", value: \"0.07\"",
+                       "quality: \"PRESENCE\", indicator: \"warmth · depth\", value: \"0.80\""] {
             XCTAssertTrue(text.contains(quoted), quoted)
+        }
+        // The legend as the original's indicatorLegend draws it: under the rows, 40 down, 28 in; a hairline 4 over the
+        // first line, 10 between lines; the quality 11 pt medium, tracked 2.5, 90 wide; indicators and value monospaced.
+        for drawn in [".padding(.top, 40)", ".easeOut(duration: 3.0)", "VStack(spacing: 10)", ".padding(.bottom, 4)",
+                      ".font(.system(size: 11, weight: .medium))", ".tracking(2.5)", ".frame(width: 90, alignment: .leading)",
+                      ".font(.system(size: 11, design: .monospaced))", ".opacity(0.70)", ".opacity(0.60)"] {
+            XCTAssertTrue(text.contains(drawn), drawn)
         }
     }
 

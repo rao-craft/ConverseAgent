@@ -3,10 +3,12 @@ extension Template {
 import SwiftUI
 
 /// A reading of the conversation as a sheet of its own: a woven canvas, always moving, over a few words; each word's
-/// row opens its reading, one at a time. It fades in a part at a time; a launch opens it with that done, and with a
-/// reading open when it names one.
+/// row opens its reading, one at a time; under the rows, a legend of the measures the words are read from. It fades in
+/// a part at a time; a launch opens it with that done, and with a reading open when it names one.
 struct ConverseWeave: View {
     let readings: [ConverseReading]
+    /// The legend's lines, in order; with none, no legend.
+    let measures: [ConverseMeasure]
     /// A launch opens it with its entrance done.
     var entered = false
 
@@ -15,8 +17,9 @@ struct ConverseWeave: View {
     @State private var expanded: String?
 
     /// `open`: the word whose reading starts open; none when it names no reading of these.
-    init(readings: [ConverseReading], entered: Bool = false, open: String? = nil) {
+    init(readings: [ConverseReading], measures: [ConverseMeasure] = ConverseReadings.measures, entered: Bool = false, open: String? = nil) {
         self.readings = readings
+        self.measures = measures
         self.entered = entered
         _appeared = State(initialValue: entered)
         _expanded = State(initialValue: readings.first { $0.word == open }?.word)
@@ -77,6 +80,14 @@ struct ConverseWeave: View {
                     }
                     .padding(.horizontal, {{n:weave.inset}})
 
+                    if !measures.isEmpty {
+                        legend
+                            .padding(.horizontal, {{n:weave.inset}})
+                            .padding(.top, {{n:legend.top}})
+                            .opacity(appeared ? 1 : 0)
+                            .animation(.easeOut(duration: {{n:legend.fade}}), value: appeared)
+                    }
+
                     ConverseBreathingDot(active: true, size: {{n:weave.endDot}})
                         .padding(.top, {{n:weave.endTop}})
                         .padding(.bottom, {{n:weave.endBottom}})
@@ -96,6 +107,37 @@ struct ConverseWeave: View {
             guard !appeared else { return }
             try? await Task.sleep(for: .seconds({{n:weave.entrance}}))
             appeared = true
+        }
+    }
+
+    /// The legend: a hairline, then a line a measure, its quality in small tracked capitals in a column of its own,
+    /// the indicators it is read from beside it, and its value trailing.
+    private var legend: some View {
+        VStack(spacing: {{n:legend.spacing}}) {
+            Rectangle()
+                .fill({{c:weave.divider}}.opacity({{n:weave.dividerOpacity}}))
+                .frame(height: {{n:weave.dividerHeight}})
+                .padding(.bottom, {{n:legend.ruleBottom}})
+
+            ForEach(measures) { measure in
+                HStack(alignment: .top, spacing: 0) {
+                    Text(measure.quality)
+                        .font(.system(size: {{n:legend.size}}, weight: .medium))
+                        .tracking({{n:legend.tracking}})
+                        .foregroundStyle({{c:legend.quality}}.opacity({{n:legend.qualityInk}}))
+                        .frame(width: {{n:legend.column}}, alignment: .leading)
+
+                    Text(measure.indicator)
+                        .font(.system(size: {{n:legend.size}}, design: .monospaced))
+                        .foregroundStyle({{c:legend.ink}}.opacity({{n:legend.inkOpacity}}))
+
+                    Spacer()
+
+                    Text(measure.value)
+                        .font(.system(size: {{n:legend.size}}, design: .monospaced))
+                        .foregroundStyle({{c:legend.ink}}.opacity({{n:legend.inkOpacity}}))
+                }
+            }
         }
     }
 }
@@ -174,7 +216,7 @@ enum ConverseWeaveInk {
 #Preview {
     Color.clear
         .sheet(isPresented: .constant(true)) {
-            ConverseWeave(readings: ConverseSamples.readings, entered: true, open: ConverseSamples.readings.first?.word)
+            ConverseWeave(readings: ConverseSamples.readings, measures: ConverseSamples.measures, entered: true, open: ConverseSamples.readings.first?.word)
                 .presentationDetents([.medium, .large])
         }
 }

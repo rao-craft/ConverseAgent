@@ -1,9 +1,9 @@
 //  WHAT: A conversation's screens as a Granite agent package. A call names the app's types with one mapping line a
 //        role (`exchange: Exchange prompt=prompt reply=reply highlights=highlights owners=owners`), and its words,
-//        numbers, symbols, look, launch states and the weave's readings with lines of their own; the run writes
-//        plain SwiftUI into the folder the call names (the stage that types a reply out and brushes its sources'
-//        phrases, the transcript, the sources and a group's documents, the woven reading), the conformances that make
-//        the app's types the views' values, and answers where.
+//        numbers, symbols, look, launch states, the weave's readings and its legend's measures with lines of their
+//        own; the run writes plain SwiftUI into the folder the call names (the stage that types a reply out and brushes
+//        its sources' phrases, the transcript, the sources and a group's documents, the woven reading), the
+//        conformances that make the app's types the views' values, and answers where.
 //  IN:   Input: the folder, a prefix, the modules a mapped type lives in, and the lines.
 //  OUT:  ConverseResult: the files written, the views, the conformances, the root views' initializers, the launch
 //        states, and what the app still has to do.
@@ -37,15 +37,17 @@ public struct ConverseAgent: GraniteAgentPackage {
         public var launch: [String]?
         /// One line a word of the weave: `outward: The weft is running ahead of the warp.`
         public var readings: [String]?
+        /// One line a measure the weave's legend lists under its rows: `DIRECTION = lean · momentum, +0.62`.
+        public var measures: [String]?
         /// The host's folder.
         public var directory: String?
 
         public init(into: String? = nil, prefix: String? = nil, imports: [String]? = nil, mappings: [String]? = nil,
                     look: [String]? = nil, strings: [String]? = nil, symbols: [String]? = nil, tuning: [String]? = nil,
-                    launch: [String]? = nil, readings: [String]? = nil, directory: String? = nil) {
+                    launch: [String]? = nil, readings: [String]? = nil, measures: [String]? = nil, directory: String? = nil) {
             self.into = into; self.prefix = prefix; self.imports = imports; self.mappings = mappings; self.look = look
             self.strings = strings; self.symbols = symbols; self.tuning = tuning; self.launch = launch
-            self.readings = readings; self.directory = directory
+            self.readings = readings; self.measures = measures; self.directory = directory
         }
     }
 
@@ -73,6 +75,7 @@ public struct ConverseAgent: GraniteAgentPackage {
         "tuning": "numbers by group or key: `reveal: base 15, jitter 10, wait 1.2`, `stroke.opacity = 0.20`, `palette = (0.38, 0.55, 0.38) (0.56, 0.49, 0.32)`",
         "launch": "one line a destination and the state the stage opens in: empty, reply(i), transcript(i, …), sources(i), source(i, \"group\") or weave(i, …), a reading's word in quotes opening it (`weave(0, \"outward\")`), and `large` after a state that opens a sheet for its full height: `contribution = source(0, \"Orbital Mechanics\")`, `echoes.full = transcript(0) large`",
         "readings": "one line a word of the weave and the reading it opens: `outward: The weft is running ahead of the warp.`",
+        "measures": "one line a measure the weave's legend lists under its rows, in order: the quality, the indicators it is read from and its value, `DIRECTION = lean · momentum, +0.62`; no legend without them",
     ]
     public static let guide = """
         Tag converse for a conversation with a model: a stage that shows one exchange at a time (the prompt, the \
@@ -97,12 +100,13 @@ public struct ConverseAgent: GraniteAgentPackage {
         sources.library, sources.royalty, sources.influence, sources.docs, sources.doc, sources.emptyTitle, \
         sources.emptyText, detail.title, weave.title and more); `symbols` the SF Symbols (leading, echoes, close, \
         keyboard, send, weave, copy, document, person, empty); `tuning` every number (reveal, leave, arrive, stroke, \
-        palette, orb, idle, dots, stage, column, ink, pill, edge, echoes, sources, detail, weave groups). `launch` \
+        palette, orb, idle, dots, stage, column, ink, pill, edge, echoes, sources, detail, weave, legend groups). `launch` \
         maps a `-destination` name to the state the stage opens in: empty, reply(i), transcript(i, …), sources(i), \
         source(i, "group"), weave(i, …) (`weave(0, "outward")` opens that reading), an index being an exchange's \
         place in the app's list; `large` after a state opens its sheets at full height (`echoes.full = transcript(0) \
         large`), medium otherwise; the app's navigation opens the stage's tab for each name. `readings` give the \
-        weave's words: `word: reading`. Example, a tutoring \
+        weave's words: `word: reading`; `measures` the legend under its rows, one line each, `QUALITY = indicators, \
+        value` (`DIRECTION = lean · momentum, +0.62`). Example, a tutoring \
         app: {"mappings": ["exchange: Turn prompt=question reply=answer highlights=quotes owners=sources", \
         "highlight: Quote phrase=text owner=sourceID", "owner: Source name=title royalty=share documents=pages", \
         "document: Page text=body influence=weight"], "strings": ["stage.title = \\"Tutor\\", sources.title = \
@@ -143,6 +147,7 @@ public struct ConverseAgent: GraniteAgentPackage {
         var look: [String: String] = [:]
         var launches: [(destination: String, state: LaunchState)] = []
         var readings: [(word: String, text: String)] = []
+        var measures: [(quality: String, indicator: String, value: String)] = []
         var problems: [String] = []
     }
 
@@ -215,6 +220,16 @@ public struct ConverseAgent: GraniteAgentPackage {
                     read.readings.append(reading)
                 }
             } catch { refuse("readings", error) }
+        }
+        for line in lines(input.measures) {
+            do {
+                let measure = try MeasureLine.parse(line)
+                if read.measures.contains(where: { $0.quality == measure.quality }) {
+                    read.problems.append("measures: `\(measure.quality)` is given twice: one line a measure")
+                } else {
+                    read.measures.append(measure)
+                }
+            } catch { refuse("measures", error) }
         }
         let words = read.readings.map(\.word)
         for launch in read.launches where launch.state.name == .weave && !words.isEmpty {
@@ -312,7 +327,7 @@ public struct ConverseAgent: GraniteAgentPackage {
         planned.append((folder.appendingPathComponent(prefix + "Look.swift"),
                         LookEmitter.emit(look: call.look, palette: values.tuning["palette"]?.colors ?? [], prefix: prefix)))
         planned.append((folder.appendingPathComponent(prefix + "Launch.swift"), LaunchEmitter.emit(call.launches, prefix: prefix)))
-        planned.append((folder.appendingPathComponent(prefix + "Readings.swift"), ReadingsEmitter.emit(call.readings, prefix: prefix)))
+        planned.append((folder.appendingPathComponent(prefix + "Readings.swift"), ReadingsEmitter.emit(call.readings, measures: call.measures, prefix: prefix)))
         let conformances = folder.appendingPathComponent("Conformances", isDirectory: true)
         for mapping in call.mappings {
             let file = ConformanceEmitter.emit(mapping, imports: imports, prefix: prefix)
@@ -380,7 +395,7 @@ public struct ConverseAgent: GraniteAgentPackage {
             "\(prefix)Transcript(exchanges: [\(prefix)Exchange], readings: [\(prefix)Reading], opensWeave: Bool = false, weaveLarge: Bool = false, weaveReading: String? = nil)",
             "\(prefix)Sources(exchange: \(prefix)Exchange?, opening: String? = nil)",
             "\(prefix)SourceDetail(documents: [\(prefix)Document], close: () -> Void)",
-            "\(prefix)Weave(readings: [\(prefix)Reading], entered: Bool = false, open: String? = nil)",
+            "\(prefix)Weave(readings: [\(prefix)Reading], measures: [\(prefix)Measure] = \(prefix)Readings.measures, entered: Bool = false, open: String? = nil)",
         ]
     }
 

@@ -55,5 +55,10 @@
     "outward: The weft is running ahead of the warp. The forward lean has strengthened — the immediate thread has separated from its longer companion, and the arc holds above the midline. The thread is moving toward something it can feel even if it hasn’t named it yet. The loom is holding the lean.",
     "shifting: The immediate cadence is separating from the settled rhythm. The patterns are diverging — their arcs widening in the canvas, the crossing nodes pulling apart. The texture is in transition: the thread is testing different tensions before deciding which one the pattern actually needs.",
     "here: A measured depth. The arc holds near the midline — engaged, not consuming. The signal arrives, contributes, and leaves room for what comes next. There’s a rhythm to how this thread moves through the warp: deliberate intervals, consistent reach, nothing strained."
+  ],
+  "measures": [
+    "DIRECTION = lean · momentum, +0.62",
+    "TEXTURE = cadence · drift, 0.07",
+    "PRESENCE = warmth · depth, 0.80"
   ]
 }

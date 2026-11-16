@@ -134,6 +134,20 @@ struct ConverseReading: Identifiable, Hashable, Sendable {
     }
 }
 
+/// A line of the weave's legend: a quality, the indicators it is read from, and its value, as written.
+struct ConverseMeasure: Identifiable, Hashable, Sendable {
+    var id: String { quality }
+    var quality: String
+    var indicator: String
+    var value: String
+
+    init(quality: String = "", indicator: String = "", value: String = "") {
+        self.quality = quality
+        self.indicator = indicator
+        self.value = value
+    }
+}
+
 // MARK: The protocols an app's types conform to
 
 /// A type the stage shows as an exchange.

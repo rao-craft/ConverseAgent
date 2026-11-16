@@ -27,6 +27,7 @@ field, line, key and launch state below it. **Changes** is converse's own log.
 | `tuning` | no | numbers by group or key: `reveal: base 15, jitter 10, wait 1.2`, `stroke.opacity = 0.20`, `palette = (0.38, 0.55, 0.38) (0.56, 0.49, 0.32)` |
 | `launch` | no | one line a destination and the state the stage opens in: empty, reply(i), transcript(i, …), sources(i), source(i, "group") or weave(i, …), a reading's word in quotes opening it (`weave(0, "outward")`), and `large` after a state that opens a sheet for its full height: `contribution = source(0, "Orbital Mechanics")`, `echoes.full = transcript(0) large` |
 | `readings` | no | one line a word of the weave and the reading it opens: `outward: The weft is running ahead of the warp.` |
+| `measures` | no | one line a measure the weave's legend lists under its rows, in order: the quality, the indicators it is read from and its value, `DIRECTION = lean · momentum, +0.62`; no legend without them |
 
 `directory` is filled by Craft with the project folder. The person's request and the host's model are offered
 beside the call, never in it. Every field may be left out: the least call writes the kit with its own values, its
@@ -88,7 +89,7 @@ ConverseStage(exchanges: [Exchange], readings: [any ConverseReadingRepresentable
 ConverseTranscript(exchanges: [ConverseExchange], readings: [ConverseReading], opensWeave: Bool = false, weaveLarge: Bool = false, weaveReading: String? = nil)
 ConverseSources(exchange: ConverseExchange?, opening: String? = nil)
 ConverseSourceDetail(documents: [ConverseDocument], close: () -> Void)
-ConverseWeave(readings: [ConverseReading], entered: Bool = false, open: String? = nil)
+ConverseWeave(readings: [ConverseReading], measures: [ConverseMeasure] = ConverseReadings.measures, entered: Bool = false, open: String? = nil)
 ```
 
 - `exchanges`: the conversation, oldest first; the stage shows the last one, and the next one sent arrives as it
@@ -522,7 +523,7 @@ first, and `pill.lines` is at least 1.
 | `weave.ruleOpacity` | `0.18` | number | the rule's opacity |
 | `weave.rulePadding` | `8` | number | points above and below the rule |
 | `weave.ruleFade` | `2.5` | number | seconds the rule fades in over |
-| `weave.inset` | `28` | number | the rows' inset from the sides |
+| `weave.inset` | `28` | number | the rows' and the legend's inset from the sides |
 | `weave.dot` | `5` | number | a row's dot |
 | `weave.dotGap` | `14` | number | points between a row's dot and its word |
 | `weave.rowPadding` | `24` | number | a row's padding above and below |
@@ -546,7 +547,7 @@ first, and `pill.lines` is at least 1.
 | `weave.dotClosedOpacity` | `0.22` | number | its opacity |
 | `weave.dotBreath` | `1.75` | number | seconds an open dot's breath takes |
 | `weave.dotBreaths` | `0.25 0.6` | 2 numbers | the opacities it breathes between |
-| `weave.divider` | `rgb(150, 132, 105)` | colour | the hairline between rows |
+| `weave.divider` | `rgb(150, 132, 105)` | colour | the hairline between rows and over the legend |
 | `weave.dividerOpacity` | `0.1` | number | its opacity |
 | `weave.dividerHeight` | `0.5` | number | its height |
 | `weave.endDot` | `4` | number | the breathing dot at the foot of the page |
@@ -560,6 +561,22 @@ first, and `pill.lines` is at least 1.
 | `weave.wordStagger` | `0.4` | number | seconds between the words |
 | `weave.rowFade` | `1.2` | number | seconds each row fades in over |
 | `weave.rowStart` | `2.0` | number | seconds before the rows start |
+
+**The legend under the weave's rows, its colours the same in light and dark.**
+
+| Key | Default | Takes | What it is |
+| --- | --- | --- | --- |
+| `legend.top` | `40` | number | points between the rows and the legend |
+| `legend.spacing` | `10` | number | points between the legend's lines, its hairline the first |
+| `legend.ruleBottom` | `4` | number | points under the hairline, beside that spacing |
+| `legend.size` | `11` | number | its font size |
+| `legend.tracking` | `2.5` | number | a quality's tracking |
+| `legend.column` | `90` | number | the width a quality takes before its indicators |
+| `legend.quality` | `rgb(120, 100, 68)` | colour | a quality's colour |
+| `legend.qualityInk` | `0.70` | number | its opacity |
+| `legend.ink` | `rgb(155, 138, 108)` | colour | the indicators' and the value's colour |
+| `legend.inkOpacity` | `0.60` | number | their opacity |
+| `legend.fade` | `3.0` | number | seconds the legend fades in over |
 
 **Launch: how a destination opens.**
 
@@ -611,10 +628,35 @@ One line a word of the weave: the word, a colon, and the reading it opens. The w
 order, and each one is a row that opens its reading. They land in `ConverseReadings.all`, the stage's default
 `readings`; a `reading:` mapping line makes the app's own type one instead.
 
+## Measures
+
+```
+DIRECTION = lean · momentum, +0.62
+TEXTURE = cadence · drift, 0.07
+PRESENCE = warmth · depth, 0.80
+```
+
+One line a measure of the weave's legend: the quality, `=` (or a colon), the indicators it is read from and, after
+the last comma, its value, which may be left out. A piece may be in quotes (`TEXTURE = "cadence, drift", 0.07`),
+and each is drawn as written, capitals and signs too. They land in `ConverseReadings.measures`, `ConverseWeave`'s
+default `measures`. The legend sits under the rows, `legend.top` down, in order: a hairline, then a line a measure,
+its quality in small tracked capitals in a column `legend.column` wide, the indicators beside it and the value
+trailing, in fixed browns that stay the same in dark. Lines past the sheet's height are reached by scrolling it.
+With no measures there is no legend.
+
 ## Changes
 
 Each change made to make this agent more precise, dated, with the run that measured it and what it made of what it
 was asked before and after (`TESTING.md`). Newest first.
+
+### 2026-11-15 · the weave's legend
+
+`measures` lines draw the legend the original's Thread has under its rows (`indicatorLegend`), with its fonts,
+tracking, colours and spacing as `legend` tuning keys. The Seer call gives the reference's two (DIRECTION +0.62,
+TEXTURE 0.07) and the third, PRESENCE 0.80, below the fold at full height, all three worked from the stub's
+indicators the way the original works them.
+
+Measured: not yet.
 
 ### 2026-11-15 · a sheet's height, one exchange, owners with no id
 

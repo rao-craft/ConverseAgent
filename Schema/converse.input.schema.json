@@ -35,6 +35,13 @@
       },
       "type" : "array"
     },
+    "measures" : {
+      "description" : "one line a measure the weave's legend lists under its rows, in order: the quality, the indicators it is read from and its value, `DIRECTION = lean · momentum, +0.62`; no legend without them",
+      "items" : {
+        "type" : "string"
+      },
+      "type" : "array"
+    },
     "prefix" : {
       "description" : "the word the kit's types start with in place of Converse, when the app already has those names: Void writes VoidStage",
       "type" : "string"

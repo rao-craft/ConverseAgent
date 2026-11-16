@@ -25,10 +25,11 @@ final class ConverseAgentTests: XCTestCase {
             .init(name: "tuning", schema: lines, required: false),
             .init(name: "launch", schema: lines, required: false),
             .init(name: "readings", schema: lines, required: false),
+            .init(name: "measures", schema: lines, required: false),
             .init(name: "directory", schema: .string, required: false),
         ]))
         XCTAssertTrue(converse.takesDirectory)
-        XCTAssertEqual(Set(converse.fields.keys), ["into", "prefix", "imports", "mappings", "look", "strings", "symbols", "tuning", "launch", "readings"],
+        XCTAssertEqual(Set(converse.fields.keys), ["into", "prefix", "imports", "mappings", "look", "strings", "symbols", "tuning", "launch", "readings", "measures"],
                        "a note beside every field the model sees")
         XCTAssertEqual(converse.lanes, 2)
         XCTAssertEqual(converse.makes.map(\.kind), ["view", "conformance"])
@@ -39,7 +40,7 @@ final class ConverseAgentTests: XCTestCase {
         for word in ["mappings", "exchange (", "highlight (", "owner (", "group (", "document (", "reading (", "value", "id=", "imports",
                      "look", "strings", "symbols", "tuning", "launch", "readings", "ConverseStage(exchanges:", "send", "load", "leading",
                      "listen", "documents", "empty", "reply(i)", "transcript(i, …)", "sources(i)", "source(i, \"group\")", "weave(i, …)",
-                     "weave(0, \"outward\")", "echoes.full = transcript(0) large"] {
+                     "weave(0, \"outward\")", "echoes.full = transcript(0) large", "measures", "QUALITY = indicators, value"] {
             XCTAssertTrue(guide.contains(word), "the guide says \(word)")
         }
         // Every word a role maps is in the guide, so the model never has to guess one.

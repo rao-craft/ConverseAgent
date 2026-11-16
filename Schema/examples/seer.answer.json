@@ -57,7 +57,7 @@
     "ConverseTranscript(exchanges: [ConverseExchange], readings: [ConverseReading], opensWeave: Bool = false, weaveLarge: Bool = false, weaveReading: String? = nil)",
     "ConverseSources(exchange: ConverseExchange?, opening: String? = nil)",
     "ConverseSourceDetail(documents: [ConverseDocument], close: () -> Void)",
-    "ConverseWeave(readings: [ConverseReading], entered: Bool = false, open: String? = nil)"
+    "ConverseWeave(readings: [ConverseReading], measures: [ConverseMeasure] = ConverseReadings.measures, entered: Bool = false, open: String? = nil)"
   ],
   "launch" : [
     "seer = empty",
