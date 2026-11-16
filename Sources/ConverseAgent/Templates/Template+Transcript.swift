@@ -17,11 +17,17 @@ struct ConverseTranscript<Documents: View>: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var path: [ConverseRoute] = []
-    @State private var weaveShown = false
-    @State private var weaveDetent: PresentationDetent = .medium
-    /// A launch's weave at the large detent is held there, the large detent its only one until it is closed: a sheet
-    /// over a sheet stands at medium whatever its selection says when it is shown.
-    @State private var weaveHeld = false
+    /// The weave while it is up, handed to its sheet as the sheet's item. The body reads no state of the weave's, so a
+    /// state set just before the sheet goes up reaches its content as the body last read it: a launch's weave stood at
+    /// medium, offered both detents, with every state set for large.
+    @State private var weave: WeaveSheet?
+
+    /// The weave's sheet as it was opened: from the leading button at medium, a drag from large; from a launch with
+    /// `weaveLarge`, at the large detent alone.
+    private struct WeaveSheet: Identifiable {
+        let large: Bool
+        var id: Bool { large }
+    }
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -51,8 +57,7 @@ struct ConverseTranscript<Documents: View>: View {
                     ToolbarItem(placement: ConversePlatform.leading) {
                         Button {
                             ConversePlatform.tap()
-                            weaveDetent = .medium
-                            weaveShown = true
+                            weave = WeaveSheet(large: false)
                         } label: {
                             Image(systemName: {{y:weave}})
                                 .font(.headline)
@@ -71,16 +76,14 @@ struct ConverseTranscript<Documents: View>: View {
             }
         }
         .tint(ConverseLook.accent)
-        .sheet(isPresented: $weaveShown, onDismiss: { weaveHeld = false }) {
+        .sheet(item: $weave) { shown in
             ConverseWeave(readings: readings, entered: opensWeave, open: opensWeave ? weaveReading : nil)
-                .presentationDetents(weaveHeld ? [.large] : [.medium, .large], selection: $weaveDetent)
+                .presentationDetents(shown.large ? [.large] : [.medium, .large])
         }
         .task {
             guard opensWeave, !readings.isEmpty else { return }
             try? await Task.sleep(for: .seconds({{n:launch.nested}}))
-            weaveHeld = weaveLarge
-            weaveDetent = weaveLarge ? .large : .medium
-            weaveShown = true
+            weave = WeaveSheet(large: weaveLarge)
         }
     }
 

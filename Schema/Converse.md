@@ -649,13 +649,25 @@ With no measures there is no legend.
 Each change made to make this agent more precise, dated, with the run that measured it and what it made of what it
 was asked before and after (`TESTING.md`). Newest first.
 
+### 2026-11-15 · the weave's heights, handed to its sheet
+
+The weave's sheet takes its heights from its item, set once as it opens: from the transcript's button at medium, a
+drag from large; from a launch with `large`, at the large detent alone. The states the change before set just ahead
+of the sheet were never read by the transcript's body, so the sheet's content read them as they stood before the
+launch set them: both detents, at medium. On the simulator, with the r6d app and a line logged from the content, it
+read the large detent unset after the launch had set it; handed over as the item, `threads.full` stands at large in
+light and dark with no drag indicator, its rows and legend shown, and `threads` at medium.
+
+Measured: not yet.
+
 ### 2026-11-15 · the weave at full height
 
 With `large`, the weave over the transcript opens at the large detent as the transcript does: it is shown with that
 detent alone, set before it appears, and keeps it until it is closed. Shown with both detents and its selection set
 to large, a sheet over a sheet stood at medium, so `threads.full`'s rows and legend were below its edge.
 
-Measured: not yet.
+Measured: floor r6d (4914c9a) still had `threads.full` at medium, now with a drag indicator: the sheet's content
+never saw the states the launch set (the entry above), whatever the detents.
 
 ### 2026-11-15 · the weave's legend
 

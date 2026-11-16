@@ -86,11 +86,15 @@ final class ConverseEmitTests: XCTestCase {
                      #"case "threads.full": return ConverseLaunch(.weave([0], nil), large: true)"#] {
             XCTAssertTrue(launch.contains(line), line)
         }
-        // A launch's large weave goes up over the transcript with the large detent alone, set before it is shown: a
-        // sheet over a sheet stood at medium with its selection set to large (`threads.full`, floor r6c).
+        // A launch's large weave goes up over the transcript with the large detent alone, its heights handed to the
+        // sheet as its item: states the body never reads reached the sheet's content as they were before the launch set
+        // them, so `threads.full` stood at medium with two detents (floors r6c, r6d).
         let transcript = try Fixture.text(seer.paths, "ConverseTranscript.swift")
-        XCTAssertTrue(transcript.contains(".presentationDetents(weaveHeld ? [.large] : [.medium, .large], selection: $weaveDetent)"))
-        XCTAssertTrue(transcript.contains("weaveHeld = weaveLarge\n            weaveDetent = weaveLarge ? .large : .medium\n            weaveShown = true"))
+        XCTAssertTrue(transcript.contains(".sheet(item: $weave) { shown in"))
+        XCTAssertTrue(transcript.contains(".presentationDetents(shown.large ? [.large] : [.medium, .large])"))
+        XCTAssertTrue(transcript.contains("weave = WeaveSheet(large: weaveLarge)"))
+        XCTAssertTrue(transcript.contains("weave = WeaveSheet(large: false)"), "the leading button opens it at medium")
+        XCTAssertFalse(transcript.contains("isPresented: $weave"), "the weave's one state is the sheet's item")
         let tutor = try ConverseAgent.write(.init(prefix: "Tutor", launch: ["tutor.weave = weave(0, 2, \"curious\") large"], directory: try Fixture.folder().path),
                                             note: { _ in }, yield: { _ in })
         XCTAssertTrue(try Fixture.text(tutor.paths, "TutorLaunch.swift").contains(#"case "tutor.weave": return TutorLaunch(.weave([0, 2], "curious"), large: true)"#))
