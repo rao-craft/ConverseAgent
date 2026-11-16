@@ -1,6 +1,6 @@
 {
   "name": "Converse",
-  "tagline": "A conversation's screens for any app that talks with a model: a stage that types each reply out and brushes its sources' phrases, the transcript, the sources and a woven reading, from the app's own types.",
+  "tagline": "A conversation's screens for any app that talks with a model: a stage that types each reply out, the transcript, sources, a woven reading.",
   "category": "developer",
   "keywords": [
     "swiftui",
